@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math' as math;
+import '../services/trade_service.dart';
 
 class GrowthChart extends StatefulWidget {
   const GrowthChart({Key? key}) : super(key: key);
@@ -11,8 +12,11 @@ class GrowthChart extends StatefulWidget {
 
 class _GrowthChartState extends State<GrowthChart> {
   double _zoomLevel = 1.0;
-  List<FlSpot> _dataPoints = [];
-  List<FlSpot> _visibleDataPoints = [];
+  List<FlSpot> _targetDataPoints = [];
+  List<FlSpot> _actualDataPoints = [];
+  List<FlSpot> _visibleTargetPoints = [];
+  List<FlSpot> _visibleActualPoints = [];
+  final TradeService _tradeService = TradeService();
 
   // Chart bounds based on zoom level
   double _minX = 0;
@@ -23,22 +27,89 @@ class _GrowthChartState extends State<GrowthChart> {
   @override
   void initState() {
     super.initState();
-    _generateDataPoints();
+    _generateTargetDataPoints();
+    _generateActualDataPoints();
     _updateChartBounds();
+
+    // Listen to trade service changes
+    _tradeService.addListener(_onTradesChanged);
   }
 
-  /// Generate exponential growth data points
+  @override
+  void dispose() {
+    _tradeService.removeListener(_onTradesChanged);
+    super.dispose();
+  }
+
+  void _onTradesChanged() {
+    setState(() {
+      _generateActualDataPoints();
+      _updateChartBounds();
+    });
+  }
+
+  /// Generate exponential growth target data points
   /// Formula: Value at week n = 100 × (1.2)^n
-  void _generateDataPoints() {
-    _dataPoints.clear();
+  void _generateTargetDataPoints() {
+    _targetDataPoints.clear();
     for (int week = 0; week <= 51; week++) {
       double value = 100 * math.pow(1.2, week).toDouble();
-      _dataPoints.add(FlSpot(week.toDouble(), value));
+      _targetDataPoints.add(FlSpot(week.toDouble(), value));
     }
   }
 
+  /// Generate actual profit data points based on real trades
+  void _generateActualDataPoints() {
+    _actualDataPoints.clear();
+
+    final weeklyProfits = _tradeService.getWeeklyProfits();
+    final firstTradeWeek = _tradeService.getFirstTradeWeek();
+
+    if (firstTradeWeek == null || weeklyProfits.isEmpty) {
+      return; // No trades yet
+    }
+
+    // Starting balance
+    double cumulativeBalance = 100.0;
+    _actualDataPoints.add(FlSpot(0, cumulativeBalance));
+
+    // Get all weeks that have trades, sorted
+    List<int> weeksWithTrades = weeklyProfits.keys.toList()..sort();
+
+    // Convert calendar weeks to chart weeks (first trade week becomes Week 1)
+    for (int i = 0; i < weeksWithTrades.length; i++) {
+      int calendarWeek = weeksWithTrades[i];
+      int chartWeek =
+          calendarWeek -
+          firstTradeWeek +
+          1; // Convert to chart week (1, 2, 3, etc.)
+
+      // Add weekly profit to cumulative balance
+      double weeklyProfit = weeklyProfits[calendarWeek]!;
+      cumulativeBalance += weeklyProfit;
+
+      _actualDataPoints.add(FlSpot(chartWeek.toDouble(), cumulativeBalance));
+
+      // If there's a gap to the next week with trades, fill it
+      if (i < weeksWithTrades.length - 1) {
+        int nextCalendarWeek = weeksWithTrades[i + 1];
+        int gapWeeks = nextCalendarWeek - calendarWeek;
+
+        // Fill gap weeks with the same balance (flat line)
+        for (int gapWeek = 1; gapWeek < gapWeeks; gapWeek++) {
+          int gapChartWeek = chartWeek + gapWeek;
+          _actualDataPoints.add(
+            FlSpot(gapChartWeek.toDouble(), cumulativeBalance),
+          );
+        }
+      }
+    }
+
+    // Sort by week to ensure proper line drawing
+    _actualDataPoints.sort((a, b) => a.x.compareTo(b.x));
+  }
+
   /// Update chart bounds based on zoom level
-  /// Zoom behavior: Camera zoom anchored at origin (0,0)
   void _updateChartBounds() {
     // Always start from origin
     _minX = 0;
@@ -53,25 +124,38 @@ class _GrowthChartState extends State<GrowthChart> {
       _maxX = fullWeeks;
     }
 
-    // Include data points slightly beyond visible range to ensure smooth curve continuation
-    // This prevents gaps at the edges while still clipping visually
-    double bufferRange = 2.0; // Include 2 weeks buffer on each side
+    // Include data points slightly beyond visible range for smooth curves
+    double bufferRange = 2.0;
     double extendedMinX = math.max(0, _minX - bufferRange);
     double extendedMaxX = math.min(51, _maxX + bufferRange);
 
-    _visibleDataPoints = _dataPoints
+    // Filter visible points
+    _visibleTargetPoints = _targetDataPoints
         .where((spot) => spot.x >= extendedMinX && spot.x <= extendedMaxX)
         .toList();
 
-    // Calculate Y-axis maximum based on the highest value in the VISIBLE range (not extended)
+    _visibleActualPoints = _actualDataPoints
+        .where((spot) => spot.x >= extendedMinX && spot.x <= extendedMaxX)
+        .toList();
+
+    // Calculate Y-axis maximum based on the highest value in the VISIBLE range
     double maxVisibleValue = 0;
-    for (FlSpot spot in _dataPoints) {
+
+    // Check target points
+    for (FlSpot spot in _targetDataPoints) {
       if (spot.x >= _minX && spot.x <= _maxX) {
         maxVisibleValue = math.max(maxVisibleValue, spot.y);
       }
     }
 
-    // Add small padding (10%) so curve doesn't touch the top
+    // Check actual points
+    for (FlSpot spot in _actualDataPoints) {
+      if (spot.x >= _minX && spot.x <= _maxX) {
+        maxVisibleValue = math.max(maxVisibleValue, spot.y);
+      }
+    }
+
+    // Add small padding (10%) so curves don't touch the top
     _maxY = maxVisibleValue * 1.1;
 
     // Cap the Y-axis at 1.1M USD maximum
@@ -85,7 +169,7 @@ class _GrowthChartState extends State<GrowthChart> {
     }
   }
 
-  /// Format Y-axis labels as unformatted USD values
+  /// Format Y-axis labels as USD values
   String _formatYAxisLabel(double value) {
     return '\$${value.toStringAsFixed(0)}';
   }
@@ -96,44 +180,43 @@ class _GrowthChartState extends State<GrowthChart> {
   }
 
   /// Get appropriate Y-axis intervals based on the current range
-  /// Aim for approximately 8-10 intervals with nice round numbers
   double _getYAxisInterval() {
     double range = _maxY - _minY;
     double targetInterval = range / 8; // Aim for ~8 intervals
 
     // Round to nice round numbers
     if (targetInterval >= 500000) {
-      return 500000.0; // 500K intervals
+      return 500000.0;
     } else if (targetInterval >= 200000) {
-      return 200000.0; // 200K intervals
+      return 200000.0;
     } else if (targetInterval >= 100000) {
-      return 100000.0; // 100K intervals
+      return 100000.0;
     } else if (targetInterval >= 50000) {
-      return 50000.0; // 50K intervals
+      return 50000.0;
     } else if (targetInterval >= 20000) {
-      return 20000.0; // 20K intervals
+      return 20000.0;
     } else if (targetInterval >= 10000) {
-      return 10000.0; // 10K intervals
+      return 10000.0;
     } else if (targetInterval >= 5000) {
-      return 5000.0; // 5K intervals
+      return 5000.0;
     } else if (targetInterval >= 2000) {
-      return 2000.0; // 2K intervals
+      return 2000.0;
     } else if (targetInterval >= 1000) {
-      return 1000.0; // 1K intervals
+      return 1000.0;
     } else if (targetInterval >= 500) {
-      return 500.0; // 500 intervals
+      return 500.0;
     } else if (targetInterval >= 200) {
-      return 200.0; // 200 intervals
+      return 200.0;
     } else if (targetInterval >= 100) {
-      return 100.0; // 100 intervals
+      return 100.0;
     } else if (targetInterval >= 50) {
-      return 50.0; // 50 intervals
+      return 50.0;
     } else if (targetInterval >= 20) {
-      return 20.0; // 20 intervals
+      return 20.0;
     } else if (targetInterval >= 10) {
-      return 10.0; // 10 intervals
+      return 10.0;
     } else {
-      return math.max(1.0, targetInterval.ceil().toDouble()); // Minimum 1
+      return math.max(1.0, targetInterval.ceil().toDouble());
     }
   }
 
@@ -142,7 +225,7 @@ class _GrowthChartState extends State<GrowthChart> {
     double range = _maxX - _minX;
 
     if (range <= 8) {
-      return 1; // Show every week for very zoomed in views (8 weeks or less)
+      return 1; // Show every week for very zoomed in views
     } else if (range <= 16) {
       return 2; // Show every 2 weeks
     } else if (range <= 30) {
@@ -150,7 +233,7 @@ class _GrowthChartState extends State<GrowthChart> {
     } else if (range <= 40) {
       return 5; // Show every 5 weeks
     } else {
-      return 5; // Show every 5 weeks even for full view (instead of 10)
+      return 5; // Show every 5 weeks even for full view
     }
   }
 
@@ -306,15 +389,18 @@ class _GrowthChartState extends State<GrowthChart> {
                 lineTouchData: LineTouchData(
                   enabled: true,
                   touchTooltipData: LineTouchTooltipData(
-                    // tooltipBgColor: Colors.purple.shade800,
-                    // tooltipRoundedRadius: 8,
                     tooltipPadding: const EdgeInsets.all(8),
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((touchedSpot) {
+                        String lineType = touchedSpot.barIndex == 0
+                            ? 'Target'
+                            : 'Actual';
                         return LineTooltipItem(
-                          'Week ${touchedSpot.x.toInt()}\n${_formatTooltipValue(touchedSpot.y)}',
-                          const TextStyle(
-                            color: Colors.white,
+                          '$lineType\nWeek ${touchedSpot.x.toInt()}\n${_formatTooltipValue(touchedSpot.y)}',
+                          TextStyle(
+                            color: touchedSpot.barIndex == 0
+                                ? Colors.purpleAccent
+                                : Colors.green,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
@@ -325,10 +411,11 @@ class _GrowthChartState extends State<GrowthChart> {
                   handleBuiltInTouches: true,
                 ),
 
-                // Line data - use only visible data points
+                // Line data - both target and actual lines
                 lineBarsData: [
+                  // Target line (purple)
                   LineChartBarData(
-                    spots: _visibleDataPoints,
+                    spots: _visibleTargetPoints,
                     isCurved: true,
                     color: Colors.purpleAccent,
                     barWidth: 3,
@@ -339,6 +426,27 @@ class _GrowthChartState extends State<GrowthChart> {
                       color: Colors.purpleAccent.withOpacity(0.1),
                     ),
                   ),
+                  // Actual profit line (green/lime)
+                  if (_visibleActualPoints.isNotEmpty)
+                    LineChartBarData(
+                      spots: _visibleActualPoints,
+                      isCurved:
+                          false, // Keep actual line more angular to show real data points
+                      color: Colors.green,
+                      barWidth: 2,
+                      isStrokeCapRound: true,
+                      dotData: FlDotData(
+                        show: true,
+                        getDotPainter: (spot, percent, barData, index) {
+                          return FlDotCirclePainter(
+                            radius: 3,
+                            color: Colors.green,
+                            strokeWidth: 1,
+                            strokeColor: Colors.white,
+                          );
+                        },
+                      ),
+                    ),
                 ],
               ),
             ),
