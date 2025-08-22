@@ -1,29 +1,50 @@
+import 'package:compundx/widgets/add_trade_form.dart';
+import 'package:compundx/widgets/growth_chart.dart';
+import 'package:compundx/widgets/trades_table.dart';
 import 'package:flutter/material.dart';
-import 'screens/dashboard_screen.dart';
 
 void main() {
-  runApp(const CompoundXApp());
+  runApp(const CompundX());
 }
 
-class CompoundXApp extends StatelessWidget {
-  const CompoundXApp({super.key});
+class CompundX extends StatelessWidget {
+  const CompundX({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CompoundX - Crypto Trading Tracker',
+      title: 'CompundX',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        brightness: Brightness.dark,
         primarySwatch: Colors.purple,
-        scaffoldBackgroundColor: const Color(0xFF0A0A0A),
-        cardColor: const Color(0xFF1A1A1A),
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.white),
-          bodyMedium: TextStyle(color: Colors.white70),
+        scaffoldBackgroundColor: Colors.black,
+      ),
+      home: DashboardScreen(),
+    );
+  }
+}
+
+class DashboardScreen extends StatelessWidget {
+  const DashboardScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(height: 1000, child: const GrowthChart()),
+              Container(height: 30),
+              AddTradeForm(),
+              Container(height: 30),
+              TradesTable(),
+              Container(height: 100),
+            ],
+          ),
         ),
       ),
-      home: const DashboardScreen(),
     );
   }
 }
