@@ -12,6 +12,7 @@ class GrowthChart extends StatefulWidget {
 
 class _GrowthChartState extends State<GrowthChart> {
   double _zoomLevel = 1.0;
+  bool _isLogScale = false;
   List<FlSpot> _targetDataPoints = [];
   List<FlSpot> _actualDataPoints = [];
   List<FlSpot> _visibleTargetPoints = [];
@@ -48,7 +49,28 @@ class _GrowthChartState extends State<GrowthChart> {
     });
   }
 
-  /// Generate exponential growth target data points
+  /// Convert value to logarithmic scale for display
+  double _toLogScale(double value) {
+    if (!_isLogScale) return value;
+    return value <= 0 ? 0 : math.log(value) / math.ln10; // log base 10
+  }
+
+  /// Convert logarithmic scale back to actual value
+  double _fromLogScale(double logValue) {
+    if (!_isLogScale) return logValue;
+    return math.pow(10, logValue).toDouble();
+  }
+
+  /// Convert data points to logarithmic scale if needed
+  List<FlSpot> _convertToDisplayScale(List<FlSpot> points) {
+    if (!_isLogScale) return points;
+
+    return points.map((spot) {
+      double logY = spot.y <= 0 ? 0 : math.log(spot.y) / math.ln10;
+      return FlSpot(spot.x, logY);
+    }).toList();
+  }
+
   /// Formula: Value at week n = 100 × (1.2)^n
   void _generateTargetDataPoints() {
     _targetDataPoints.clear();
@@ -109,11 +131,10 @@ class _GrowthChartState extends State<GrowthChart> {
     _actualDataPoints.sort((a, b) => a.x.compareTo(b.x));
   }
 
-  /// Update chart bounds based on zoom level
+  /// Update chart bounds based on zoom level and scale type
   void _updateChartBounds() {
     // Always start from origin
     _minX = 0;
-    _minY = 0;
 
     // Calculate visible X-axis range (zoom scales down from full 51 weeks)
     double fullWeeks = 51;
@@ -129,27 +150,46 @@ class _GrowthChartState extends State<GrowthChart> {
     double extendedMinX = math.max(0, _minX - bufferRange);
     double extendedMaxX = math.min(51, _maxX + bufferRange);
 
-    // Filter visible points
-    _visibleTargetPoints = _targetDataPoints
+    // Filter visible points (in original scale)
+    List<FlSpot> originalTargetPoints = _targetDataPoints
         .where((spot) => spot.x >= extendedMinX && spot.x <= extendedMaxX)
         .toList();
 
-    _visibleActualPoints = _actualDataPoints
+    List<FlSpot> originalActualPoints = _actualDataPoints
         .where((spot) => spot.x >= extendedMinX && spot.x <= extendedMaxX)
         .toList();
+
+    // Convert to display scale (log or linear)
+    _visibleTargetPoints = _convertToDisplayScale(originalTargetPoints);
+    _visibleActualPoints = _convertToDisplayScale(originalActualPoints);
+
+    // Calculate Y-axis bounds
+    if (_isLogScale) {
+      _updateLogYBounds(originalTargetPoints, originalActualPoints);
+    } else {
+      _updateLinearYBounds(originalTargetPoints, originalActualPoints);
+    }
+  }
+
+  /// Update Y bounds for linear scale
+  void _updateLinearYBounds(
+    List<FlSpot> targetPoints,
+    List<FlSpot> actualPoints,
+  ) {
+    _minY = 0;
 
     // Calculate Y-axis maximum based on the highest value in the VISIBLE range
     double maxVisibleValue = 0;
 
     // Check target points
-    for (FlSpot spot in _targetDataPoints) {
+    for (FlSpot spot in targetPoints) {
       if (spot.x >= _minX && spot.x <= _maxX) {
         maxVisibleValue = math.max(maxVisibleValue, spot.y);
       }
     }
 
     // Check actual points
-    for (FlSpot spot in _actualDataPoints) {
+    for (FlSpot spot in actualPoints) {
       if (spot.x >= _minX && spot.x <= _maxX) {
         maxVisibleValue = math.max(maxVisibleValue, spot.y);
       }
@@ -169,54 +209,131 @@ class _GrowthChartState extends State<GrowthChart> {
     }
   }
 
-  /// Format Y-axis labels as USD values
+  /// Update Y bounds for logarithmic scale
+  void _updateLogYBounds(List<FlSpot> targetPoints, List<FlSpot> actualPoints) {
+    // Find min and max values in original scale
+    double minOriginalValue = double.infinity;
+    double maxOriginalValue = 0;
+
+    // Check target points
+    for (FlSpot spot in targetPoints) {
+      if (spot.x >= _minX && spot.x <= _maxX && spot.y > 0) {
+        minOriginalValue = math.min(minOriginalValue, spot.y);
+        maxOriginalValue = math.max(maxOriginalValue, spot.y);
+      }
+    }
+
+    // Check actual points
+    for (FlSpot spot in actualPoints) {
+      if (spot.x >= _minX && spot.x <= _maxX && spot.y > 0) {
+        minOriginalValue = math.min(minOriginalValue, spot.y);
+        maxOriginalValue = math.max(maxOriginalValue, spot.y);
+      }
+    }
+
+    // Handle edge cases
+    if (minOriginalValue == double.infinity) {
+      minOriginalValue = 100; // Starting balance
+      maxOriginalValue = 1000000; // 1M target
+    }
+
+    // Convert to log scale with some padding
+    double logMin = math.log(minOriginalValue) / math.ln10;
+    double logMax = math.log(maxOriginalValue) / math.ln10;
+
+    // Expand the range slightly and round to nice values
+    _minY = (logMin - 0.1).floorToDouble();
+    _maxY = (logMax + 0.1).ceilToDouble();
+
+    // Ensure reasonable bounds
+    if (_minY < 0) _minY = 0; // Minimum 10^0 = $1
+    if (_maxY > 6) _maxY = 6; // Maximum 10^6 = $1M
+  }
+
+  /// Format Y-axis labels as USD values - FIXED VERSION
   String _formatYAxisLabel(double value) {
-    return '\$${value.toStringAsFixed(0)}';
-  }
-
-  /// Format tooltip values
-  String _formatTooltipValue(double value) {
-    return '\$${value.toStringAsFixed(0)}';
-  }
-
-  /// Get appropriate Y-axis intervals based on the current range
-  double _getYAxisInterval() {
-    double range = _maxY - _minY;
-    double targetInterval = range / 8; // Aim for ~8 intervals
-
-    // Round to nice round numbers
-    if (targetInterval >= 500000) {
-      return 500000.0;
-    } else if (targetInterval >= 200000) {
-      return 200000.0;
-    } else if (targetInterval >= 100000) {
-      return 100000.0;
-    } else if (targetInterval >= 50000) {
-      return 50000.0;
-    } else if (targetInterval >= 20000) {
-      return 20000.0;
-    } else if (targetInterval >= 10000) {
-      return 10000.0;
-    } else if (targetInterval >= 5000) {
-      return 5000.0;
-    } else if (targetInterval >= 2000) {
-      return 2000.0;
-    } else if (targetInterval >= 1000) {
-      return 1000.0;
-    } else if (targetInterval >= 500) {
-      return 500.0;
-    } else if (targetInterval >= 200) {
-      return 200.0;
-    } else if (targetInterval >= 100) {
-      return 100.0;
-    } else if (targetInterval >= 50) {
-      return 50.0;
-    } else if (targetInterval >= 20) {
-      return 20.0;
-    } else if (targetInterval >= 10) {
-      return 10.0;
+    if (_isLogScale) {
+      // Convert log value back to actual dollar amount
+      double actualValue = _fromLogScale(value);
+      return _formatCurrency(actualValue);
     } else {
-      return math.max(1.0, targetInterval.ceil().toDouble());
+      return _formatCurrency(value);
+    }
+  }
+
+  /// Format currency with appropriate units (K, M)
+  String _formatCurrency(double value) {
+    if (value >= 1000000) {
+      return '\$${(value / 1000000).toStringAsFixed(1)}M';
+    } else if (value >= 1000) {
+      return '\$${(value / 1000).toStringAsFixed(0)}K';
+    } else {
+      return '\$${value.toStringAsFixed(0)}';
+    }
+  }
+
+  /// Format tooltip values - FIXED VERSION
+  String _formatTooltipValue(double value) {
+    if (_isLogScale) {
+      // Convert log value back to actual dollar amount
+      double actualValue = _fromLogScale(value);
+      return _formatCurrency(actualValue);
+    } else {
+      return _formatCurrency(value);
+    }
+  }
+
+  /// Get appropriate Y-axis intervals based on scale type and current range
+  double _getYAxisInterval() {
+    if (_isLogScale) {
+      // For log scale, use intervals of 1.0 (each represents a power of 10)
+      double range = _maxY - _minY;
+
+      if (range <= 2) {
+        return 0.30103; // log10(2) ≈ 0.301, gives us nice intervals like 100, 200, 500, 1000
+      } else if (range <= 4) {
+        return 1.0; // Show every power of 10: 10, 100, 1000, 10000
+      } else {
+        return 1.0; // Always show major powers for large ranges
+      }
+    } else {
+      // Linear scale intervals (existing logic)
+      double range = _maxY - _minY;
+      double targetInterval = range / 8; // Aim for ~8 intervals
+
+      if (targetInterval >= 500000) {
+        return 500000.0;
+      } else if (targetInterval >= 200000) {
+        return 200000.0;
+      } else if (targetInterval >= 100000) {
+        return 100000.0;
+      } else if (targetInterval >= 50000) {
+        return 50000.0;
+      } else if (targetInterval >= 20000) {
+        return 20000.0;
+      } else if (targetInterval >= 10000) {
+        return 10000.0;
+      } else if (targetInterval >= 5000) {
+        return 5000.0;
+      } else if (targetInterval >= 2000) {
+        return 2000.0;
+      } else if (targetInterval >= 1000) {
+        return 1000.0;
+      } else if (targetInterval >= 500) {
+        return 500.0;
+      } else if (targetInterval >= 200) {
+        return 200.0;
+      } else if (targetInterval >= 100) {
+        return 100.0;
+      } else if (targetInterval >= 50) {
+        return 50.0;
+      } else if (targetInterval >= 20) {
+        return 20.0;
+      } else if (targetInterval >= 10) {
+        return 10.0;
+      } else {
+        return math.max(1.0, targetInterval.ceil().toDouble());
+      }
     }
   }
 
@@ -247,24 +364,102 @@ class _GrowthChartState extends State<GrowthChart> {
           padding: const EdgeInsets.symmetric(vertical: 16),
           child: const Text(
             'ROAD TO \$1 MILLION',
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.bold,
               letterSpacing: 2,
             ),
-            textAlign: TextAlign.center,
           ),
         ),
-        // Zoom Controls
         Container(
           decoration: BoxDecoration(
             color: Colors.grey.shade900,
+
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.grey.shade800),
           ),
           child: Row(
             children: [
+              SizedBox(width: 10),
+              // Scale Toggle Buttons
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade800,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.grey.shade600),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isLogScale = false;
+                          _updateChartBounds();
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: !_isLogScale
+                              ? Colors.purpleAccent
+                              : Colors.transparent,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(6),
+                            bottomLeft: Radius.circular(6),
+                          ),
+                        ),
+                        child: Text(
+                          'LINEAR',
+                          style: TextStyle(
+                            color: !_isLogScale ? Colors.white : Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isLogScale = true;
+                          _updateChartBounds();
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _isLogScale
+                              ? Colors.purpleAccent
+                              : Colors.transparent,
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(6),
+                            bottomRight: Radius.circular(6),
+                          ),
+                        ),
+                        child: Text(
+                          'LOG',
+                          style: TextStyle(
+                            color: _isLogScale ? Colors.white : Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Zoom Controls
               Expanded(
                 child: Slider(
                   value: _zoomLevel,
