@@ -11,7 +11,10 @@ class Trade {
   final double sizeUSDT;
   final String outcome;
   final double pnl;
-  final double newBalance;
+  // New optional properties
+  final String? beforeScreenshotUrl;
+  final String? afterScreenshotUrl;
+  final String? notes;
 
   Trade({
     required this.id,
@@ -26,7 +29,9 @@ class Trade {
     required this.sizeUSDT,
     required this.outcome,
     required this.pnl,
-    required this.newBalance,
+    this.beforeScreenshotUrl,
+    this.afterScreenshotUrl,
+    this.notes,
   });
 
   // Calculate size from entry price, quantity and leverage
@@ -40,7 +45,9 @@ class Trade {
 
   // Determine outcome based on PNL
   static String determineOutcome(double pnl) {
-    return pnl >= 0 ? 'Win' : 'Loss';
+    if (pnl > 0) return 'Win';
+    if (pnl < 0) return 'Loss';
+    return '–'; // Dash for zero or unknown PNL
   }
 
   // Create a new trade with calculated fields
@@ -54,12 +61,13 @@ class Trade {
     required int leverage,
     required double entryPrice,
     required double quantity,
-    required double pnl,
-    required double previousBalance,
+    double pnl = 0.0, // Default to 0 for open trades
+    String? beforeScreenshotUrl,
+    String? afterScreenshotUrl,
+    String? notes,
   }) {
     final sizeUSDT = calculateSize(entryPrice, quantity, leverage);
     final outcome = determineOutcome(pnl);
-    final newBalance = previousBalance + pnl;
 
     return Trade(
       id: id,
@@ -74,7 +82,51 @@ class Trade {
       sizeUSDT: sizeUSDT,
       outcome: outcome,
       pnl: pnl,
-      newBalance: newBalance,
+      beforeScreenshotUrl: beforeScreenshotUrl,
+      afterScreenshotUrl: afterScreenshotUrl,
+      notes: notes,
+    );
+  }
+
+  // Create a copy of this trade with updated fields
+  Trade copyWith({
+    int? id,
+    DateTime? date,
+    String? time,
+    String? exchange,
+    String? symbol,
+    String? type,
+    int? leverage,
+    double? entryPrice,
+    double? quantity,
+    double? sizeUSDT,
+    String? outcome,
+    double? pnl,
+    String? beforeScreenshotUrl,
+    String? afterScreenshotUrl,
+    String? notes,
+  }) {
+    final newPnl = pnl ?? this.pnl;
+    final newOutcome = pnl != null
+        ? determineOutcome(newPnl)
+        : (outcome ?? this.outcome);
+
+    return Trade(
+      id: id ?? this.id,
+      date: date ?? this.date,
+      time: time ?? this.time,
+      exchange: exchange ?? this.exchange,
+      symbol: symbol ?? this.symbol,
+      type: type ?? this.type,
+      leverage: leverage ?? this.leverage,
+      entryPrice: entryPrice ?? this.entryPrice,
+      quantity: quantity ?? this.quantity,
+      sizeUSDT: sizeUSDT ?? this.sizeUSDT,
+      outcome: newOutcome,
+      pnl: newPnl,
+      beforeScreenshotUrl: beforeScreenshotUrl ?? this.beforeScreenshotUrl,
+      afterScreenshotUrl: afterScreenshotUrl ?? this.afterScreenshotUrl,
+      notes: notes ?? this.notes,
     );
   }
 
@@ -92,7 +144,9 @@ class Trade {
       'sizeUSDT': sizeUSDT,
       'outcome': outcome,
       'pnl': pnl,
-      'newBalance': newBalance,
+      'beforeScreenshotUrl': beforeScreenshotUrl,
+      'afterScreenshotUrl': afterScreenshotUrl,
+      'notes': notes,
     };
   }
 
@@ -110,7 +164,9 @@ class Trade {
       sizeUSDT: json['sizeUSDT'],
       outcome: json['outcome'],
       pnl: json['pnl'],
-      newBalance: json['newBalance'],
+      beforeScreenshotUrl: json['beforeScreenshotUrl'],
+      afterScreenshotUrl: json['afterScreenshotUrl'],
+      notes: json['notes'],
     );
   }
 }

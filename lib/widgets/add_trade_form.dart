@@ -12,7 +12,6 @@ class AddTradeForm extends StatefulWidget {
 class _AddTradeFormState extends State<AddTradeForm> {
   final _formKey = GlobalKey<FormState>();
   final TradeService _tradeService = TradeService();
-  bool _isExpanded = false;
 
   // Form controllers
   final _dateController = TextEditingController();
@@ -97,6 +96,12 @@ class _AddTradeFormState extends State<AddTradeForm> {
 
   void _submitTrade() {
     if (_formKey.currentState!.validate()) {
+      // Parse PNL - if empty or invalid, default to 0 (open trade)
+      double? pnlValue;
+      if (_pnlController.text.isNotEmpty) {
+        pnlValue = double.tryParse(_pnlController.text);
+      }
+
       _tradeService.addTrade(
         date: _selectedDate,
         time: _timeController.text,
@@ -106,7 +111,7 @@ class _AddTradeFormState extends State<AddTradeForm> {
         leverage: int.parse(_leverageController.text),
         entryPrice: double.parse(_entryPriceController.text),
         quantity: double.parse(_quantityController.text),
-        pnl: double.parse(_pnlController.text),
+        pnl: pnlValue, // Will default to 0 if null
       );
 
       // Clear form
@@ -116,14 +121,13 @@ class _AddTradeFormState extends State<AddTradeForm> {
       _quantityController.clear();
       _pnlController.clear();
 
-      // Auto-collapse after successful submission
-      setState(() {
-        _isExpanded = false;
-      });
-
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Trade added successfully!'),
+        SnackBar(
+          content: Text(
+            pnlValue == null
+                ? 'Open trade added successfully!'
+                : 'Closed trade added successfully!',
+          ),
           backgroundColor: Colors.green,
         ),
       );
@@ -133,184 +137,137 @@ class _AddTradeFormState extends State<AddTradeForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.grey.shade900,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.grey.shade800),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with expand/collapse button
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Add Trade',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Add Trade',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
-              Row(
-                children: [
-                  if (!_isExpanded)
-                    SizedBox(
-                      height: 32,
-                      child: ElevatedButton(
-                        onPressed: () => setState(() => _isExpanded = true),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purpleAccent,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        child: const Text(
-                          'ADD TRADE',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  if (_isExpanded) ...[
-                    IconButton(
-                      onPressed: () => setState(() => _isExpanded = false),
-                      icon: const Icon(
-                        Icons.keyboard_arrow_up,
-                        color: Colors.white70,
-                      ),
-                      iconSize: 20,
-                    ),
-                  ] else ...[
-                    IconButton(
-                      onPressed: () => setState(() => _isExpanded = true),
-                      icon: const Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Colors.white70,
-                      ),
-                      iconSize: 20,
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 16),
 
-          // Expandable form content
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            height: _isExpanded ? null : 0,
-            child: _isExpanded ? _buildExpandedForm() : const SizedBox.shrink(),
-          ),
-        ],
+            // Row 1: Symbol, Type, Leverage, Entry Price
+            Row(
+              children: [
+                Expanded(
+                  child: _buildTextField(
+                    _symbolController,
+                    'Symbol',
+                    required: true,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(child: _buildTypeDropdown()),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildNumberField(
+                    _leverageController,
+                    'Leverage',
+                    isInteger: true,
+                    required: true,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildNumberField(
+                    _entryPriceController,
+                    'Entry Price',
+                    required: true,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Row 2: Date, Time, Quantity, PNL
+            Row(
+              children: [
+                Expanded(child: _buildDateField()),
+                const SizedBox(width: 12),
+                Expanded(child: _buildTimeField()),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildNumberField(
+                    _quantityController,
+                    'Quantity',
+                    required: true,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildNumberField(
+                    _pnlController,
+                    'PNL (Optional)',
+                    allowNegative: true,
+                    required: false, // PNL is now optional
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Row 3: ADD button
+            Row(
+              children: [
+                const Spacer(),
+                SizedBox(
+                  width: 100,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _submitTrade,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purpleAccent,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    child: const Text(
+                      'ADD',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // Help text
+            const SizedBox(height: 8),
+            Text(
+              'Tip: Leave PNL empty for open trades. You can edit trades later to add PNL when closed.',
+              style: TextStyle(
+                color: Colors.grey.shade400,
+                fontSize: 11,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildExpandedForm() {
-    return Form(
-      key: _formKey,
-      child: Column(
-        children: [
-          const SizedBox(height: 12),
-
-          // Row 1: Essential fields in compact layout
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: _buildCompactTextField(
-                  _symbolController,
-                  'Symbol',
-                  required: true,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(flex: 1, child: _buildCompactTypeDropdown()),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 1,
-                child: _buildCompactNumberField(
-                  _leverageController,
-                  'Lev',
-                  isInteger: true,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 2,
-                child: _buildCompactNumberField(
-                  _entryPriceController,
-                  'Entry Price',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          // Row 2: Secondary fields
-          Row(
-            children: [
-              Expanded(child: _buildCompactDateField()),
-              const SizedBox(width: 8),
-              Expanded(child: _buildCompactTimeField()),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildCompactNumberField(
-                  _quantityController,
-                  'Quantity',
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildCompactNumberField(
-                  _pnlController,
-                  'PNL',
-                  allowNegative: true,
-                ),
-              ),
-              const SizedBox(width: 8),
-              SizedBox(
-                width: 80,
-                height: 40,
-                child: ElevatedButton(
-                  onPressed: _submitTrade,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purpleAccent,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.all(0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  child: const Text(
-                    'ADD',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompactDateField() {
+  Widget _buildDateField() {
     return TextFormField(
       controller: _dateController,
       readOnly: true,
       onTap: _selectDate,
-      style: const TextStyle(color: Colors.white, fontSize: 11),
+      style: const TextStyle(color: Colors.white, fontSize: 12),
       decoration: InputDecoration(
         labelText: 'Date',
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 9),
+        labelStyle: const TextStyle(color: Colors.white70, fontSize: 10),
         filled: true,
         fillColor: Colors.grey.shade800,
         border: const OutlineInputBorder(),
@@ -320,26 +277,30 @@ class _AddTradeFormState extends State<AddTradeForm> {
         focusedBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.purpleAccent),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         suffixIcon: const Icon(
           Icons.calendar_today,
           color: Colors.white70,
-          size: 14,
+          size: 16,
         ),
       ),
-      validator: (value) => value?.isEmpty == true ? 'Required' : null,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Required';
+        }
+        return null;
+      },
     );
   }
 
-  Widget _buildCompactTimeField() {
+  Widget _buildTimeField() {
     return TextFormField(
       controller: _timeController,
       readOnly: true,
       onTap: _selectTime,
-      style: const TextStyle(color: Colors.white, fontSize: 11),
+      style: const TextStyle(color: Colors.white, fontSize: 12),
       decoration: InputDecoration(
         labelText: 'Time',
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 9),
+        labelStyle: const TextStyle(color: Colors.white70, fontSize: 10),
         filled: true,
         fillColor: Colors.grey.shade800,
         border: const OutlineInputBorder(),
@@ -349,28 +310,32 @@ class _AddTradeFormState extends State<AddTradeForm> {
         focusedBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.purpleAccent),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         suffixIcon: const Icon(
           Icons.access_time,
           color: Colors.white70,
-          size: 14,
+          size: 16,
         ),
       ),
-      validator: (value) => value?.isEmpty == true ? 'Required' : null,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Required';
+        }
+        return null;
+      },
     );
   }
 
-  Widget _buildCompactTextField(
+  Widget _buildTextField(
     TextEditingController controller,
     String label, {
     bool required = false,
   }) {
     return TextFormField(
       controller: controller,
-      style: const TextStyle(color: Colors.white, fontSize: 11),
+      style: const TextStyle(color: Colors.white, fontSize: 12),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 9),
+        labelStyle: const TextStyle(color: Colors.white70, fontSize: 10),
         filled: true,
         fillColor: Colors.grey.shade800,
         border: const OutlineInputBorder(),
@@ -380,19 +345,24 @@ class _AddTradeFormState extends State<AddTradeForm> {
         focusedBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.purpleAccent),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       ),
       validator: required
-          ? (value) => value?.isEmpty == true ? 'Required' : null
+          ? (value) {
+              if (value == null || value.isEmpty) {
+                return 'Required';
+              }
+              return null;
+            }
           : null,
     );
   }
 
-  Widget _buildCompactNumberField(
+  Widget _buildNumberField(
     TextEditingController controller,
     String label, {
     bool isInteger = false,
     bool allowNegative = false,
+    bool required = true,
   }) {
     return TextFormField(
       controller: controller,
@@ -405,10 +375,10 @@ class _AddTradeFormState extends State<AddTradeForm> {
             RegExp(allowNegative ? r'^-?\d*\.?\d*' : r'^\d*\.?\d*'),
           ),
       ],
-      style: const TextStyle(color: Colors.white, fontSize: 11),
+      style: const TextStyle(color: Colors.white, fontSize: 12),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 9),
+        labelStyle: const TextStyle(color: Colors.white70, fontSize: 10),
         filled: true,
         fillColor: Colors.grey.shade800,
         border: const OutlineInputBorder(),
@@ -418,28 +388,35 @@ class _AddTradeFormState extends State<AddTradeForm> {
         focusedBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.purpleAccent),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) return 'Required';
-        if (isInteger) {
-          if (int.tryParse(value) == null) return 'Invalid';
-        } else {
-          if (double.tryParse(value) == null) return 'Invalid';
+        if (required && (value == null || value.isEmpty)) {
+          return 'Required';
+        }
+        if (value != null && value.isNotEmpty) {
+          if (isInteger) {
+            if (int.tryParse(value) == null) {
+              return 'Invalid';
+            }
+          } else {
+            if (double.tryParse(value) == null) {
+              return 'Invalid';
+            }
+          }
         }
         return null;
       },
     );
   }
 
-  Widget _buildCompactTypeDropdown() {
+  Widget _buildTypeDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedType,
-      style: const TextStyle(color: Colors.white, fontSize: 11),
+      style: const TextStyle(color: Colors.white, fontSize: 12),
       dropdownColor: Colors.grey.shade800,
       decoration: InputDecoration(
         labelText: 'Type',
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 9),
+        labelStyle: const TextStyle(color: Colors.white70, fontSize: 10),
         filled: true,
         fillColor: Colors.grey.shade800,
         border: const OutlineInputBorder(),
@@ -449,13 +426,9 @@ class _AddTradeFormState extends State<AddTradeForm> {
         focusedBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.purpleAccent),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       ),
       items: ['Long', 'Short'].map((String type) {
-        return DropdownMenuItem<String>(
-          value: type,
-          child: Text(type, style: const TextStyle(fontSize: 11)),
-        );
+        return DropdownMenuItem<String>(value: type, child: Text(type));
       }).toList(),
       onChanged: (String? newValue) {
         setState(() {

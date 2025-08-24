@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/trade.dart';
 import '../services/trade_service.dart';
+import 'edit_trade_dialog.dart';
 
 class TradesTable extends StatelessWidget {
   const TradesTable({Key? key}) : super(key: key);
@@ -17,13 +18,61 @@ class TradesTable extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Trades',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Trades',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              // Balance display
+              AnimatedBuilder(
+                animation: TradeService(),
+                builder: (context, child) {
+                  final balance = TradeService().currentBalance;
+                  final totalPnL = TradeService().totalPnL;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: totalPnL >= 0
+                          ? Colors.green.withOpacity(0.2)
+                          : Colors.red.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: totalPnL >= 0 ? Colors.green : Colors.red,
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.account_balance_wallet,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Balance: \${balance.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           Container(
@@ -43,7 +92,11 @@ class TradesTable extends StatelessWidget {
                     }
                     return Column(
                       children: trades.asMap().entries.map((entry) {
-                        return _buildTableRow(entry.value, entry.key + 1);
+                        return _buildTableRow(
+                          context,
+                          entry.value,
+                          entry.key + 1,
+                        );
                       }).toList(),
                     );
                   },
@@ -67,19 +120,23 @@ class TradesTable extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _buildHeaderCell('#', 40),
-          _buildHeaderCell('Date', 80),
-          _buildHeaderCell('Time', 60),
-          _buildHeaderCell('Exchange', 80),
-          _buildHeaderCell('Symbol', 80),
-          _buildHeaderCell('Type', 60),
-          _buildHeaderCell('Leverage', 80),
-          _buildHeaderCell('Entry Price', 90),
-          _buildHeaderCell('Quantity', 80),
-          _buildHeaderCell('Size(USDT)', 90),
-          _buildHeaderCell('Outcome', 80),
+          _buildHeaderCell('#', 30),
+          _buildHeaderCell('Date', 70),
+          _buildHeaderCell('Time', 50),
+          _buildHeaderCell('Exchange', 70),
+          _buildHeaderCell('Symbol', 70),
+          _buildHeaderCell('Type', 50),
+          _buildHeaderCell('Leverage', 60),
+          _buildHeaderCell('Entry Price', 80),
+          _buildHeaderCell('Quantity', 70),
+          _buildHeaderCell('Size(USDT)', 80),
+          _buildHeaderCell('Outcome', 60),
           _buildHeaderCell('PNL', 60),
-          _buildHeaderCell('New Balance', 100),
+          _buildHeaderCell('Balance', 80),
+          _buildHeaderCell('Before', 50), // Before Screenshot
+          _buildHeaderCell('After', 50), // After Screenshot
+          _buildHeaderCell('Notes', 60),
+          _buildHeaderCell('Edit', 50),
         ],
       ),
     );
@@ -89,7 +146,7 @@ class TradesTable extends StatelessWidget {
     return Container(
       width: width,
       height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       decoration: BoxDecoration(
         border: Border(
           right: BorderSide(color: Colors.grey.shade600, width: 1),
@@ -100,15 +157,18 @@ class TradesTable extends StatelessWidget {
         style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
-          fontSize: 11,
+          fontSize: 10,
         ),
         textAlign: TextAlign.center,
       ),
     );
   }
 
-  Widget _buildTableRow(Trade trade, int index) {
+  Widget _buildTableRow(BuildContext context, Trade trade, int index) {
     final isEven = index % 2 == 0;
+    final tradeService = TradeService();
+    final currentBalance = tradeService.getBalanceAtIndex(index - 1);
+
     return Container(
       decoration: BoxDecoration(
         color: isEven ? Colors.grey.shade800 : Colors.grey.shade900,
@@ -118,39 +178,99 @@ class TradesTable extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _buildDataCell(index.toString(), 40),
+          _buildDataCell(index.toString(), 30),
           _buildDataCell(
             '${trade.date.day.toString().padLeft(2, '0')}/${trade.date.month.toString().padLeft(2, '0')}/${trade.date.year.toString().substring(2)}',
-            80,
+            70,
           ),
-          _buildDataCell(trade.time, 60),
-          _buildDataCell(trade.exchange, 80),
-          _buildDataCell(trade.symbol, 80),
+          _buildDataCell(trade.time, 50),
+          _buildDataCell(trade.exchange, 70),
+          _buildDataCell(trade.symbol, 70),
           _buildDataCell(
             trade.type,
-            60,
+            50,
             color: trade.type == 'Long' ? Colors.green : Colors.red,
           ),
-          _buildDataCell(trade.leverage.toString(), 80),
-          _buildDataCell(trade.entryPrice.toStringAsFixed(0), 90),
-          _buildDataCell(trade.quantity.toStringAsFixed(2), 80),
-          _buildDataCell(trade.sizeUSDT.toStringAsFixed(0), 90),
+          _buildDataCell(trade.leverage.toString(), 60),
+          _buildDataCell(trade.entryPrice.toStringAsFixed(0), 80),
+          _buildDataCell(trade.quantity.toStringAsFixed(2), 70),
+          _buildDataCell(trade.sizeUSDT.toStringAsFixed(0), 80),
           _buildDataCell(
             trade.outcome,
-            80,
-            color: trade.outcome == 'Win' ? Colors.green : Colors.red,
+            60,
+            color: trade.outcome == 'Win'
+                ? Colors.green
+                : trade.outcome == 'Loss'
+                ? Colors.red
+                : Colors.grey.shade400,
           ),
           _buildDataCell(
-            trade.pnl >= 0
+            trade.pnl == 0
+                ? '–'
+                : trade.pnl > 0
                 ? '+${trade.pnl.toStringAsFixed(0)}'
                 : trade.pnl.toStringAsFixed(0),
             60,
-            color: trade.pnl >= 0 ? Colors.green : Colors.red,
+            color: trade.pnl > 0
+                ? Colors.green
+                : trade.pnl < 0
+                ? Colors.red
+                : Colors.grey.shade400,
           ),
           _buildDataCell(
-            trade.newBalance.toStringAsFixed(0),
-            100,
+            currentBalance.toStringAsFixed(0),
+            80,
             color: Colors.purpleAccent,
+          ),
+          _buildIconCell(
+            trade.beforeScreenshotUrl != null
+                ? Icons.image
+                : Icons.image_not_supported,
+            50,
+            color: trade.beforeScreenshotUrl != null
+                ? Colors.green
+                : Colors.grey.shade600,
+            onTap: trade.beforeScreenshotUrl != null
+                ? () => _showImageDialog(
+                    context,
+                    trade.beforeScreenshotUrl!,
+                    'Before Screenshot',
+                  )
+                : null,
+          ),
+          _buildIconCell(
+            trade.afterScreenshotUrl != null
+                ? Icons.image
+                : Icons.image_not_supported,
+            50,
+            color: trade.afterScreenshotUrl != null
+                ? Colors.green
+                : Colors.grey.shade600,
+            onTap: trade.afterScreenshotUrl != null
+                ? () => _showImageDialog(
+                    context,
+                    trade.afterScreenshotUrl!,
+                    'After Screenshot',
+                  )
+                : null,
+          ),
+          _buildIconCell(
+            trade.notes != null && trade.notes!.isNotEmpty
+                ? Icons.note
+                : Icons.note_outlined,
+            60,
+            color: trade.notes != null && trade.notes!.isNotEmpty
+                ? Colors.blue
+                : Colors.grey.shade600,
+            onTap: trade.notes != null && trade.notes!.isNotEmpty
+                ? () => _showNotesDialog(context, trade.notes!)
+                : null,
+          ),
+          _buildIconCell(
+            Icons.edit,
+            50,
+            color: Colors.orange,
+            onTap: () => _showEditDialog(context, trade),
           ),
         ],
       ),
@@ -161,7 +281,7 @@ class TradesTable extends StatelessWidget {
     return Container(
       width: width,
       height: 35,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       decoration: BoxDecoration(
         border: Border(
           right: BorderSide(color: Colors.grey.shade600, width: 1),
@@ -171,11 +291,33 @@ class TradesTable extends StatelessWidget {
         text,
         style: TextStyle(
           color: color ?? Colors.white70,
-          fontSize: 10,
+          fontSize: 9,
           fontWeight: color != null ? FontWeight.bold : FontWeight.normal,
         ),
         textAlign: TextAlign.center,
         overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  Widget _buildIconCell(
+    IconData icon,
+    double width, {
+    Color? color,
+    VoidCallback? onTap,
+  }) {
+    return Container(
+      width: width,
+      height: 35,
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      decoration: BoxDecoration(
+        border: Border(
+          right: BorderSide(color: Colors.grey.shade600, width: 1),
+        ),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        child: Icon(icon, size: 14, color: color ?? Colors.white70),
       ),
     );
   }
@@ -206,6 +348,90 @@ class TradesTable extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showEditDialog(BuildContext context, Trade trade) {
+    showDialog(
+      context: context,
+      builder: (context) => EditTradeDialog(trade: trade),
+    );
+  }
+
+  void _showImageDialog(BuildContext context, String imageUrl, String title) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.grey.shade900,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 400),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Flexible(
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 200,
+                      color: Colors.grey.shade800,
+                      child: const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.error, color: Colors.red, size: 48),
+                            SizedBox(height: 8),
+                            Text(
+                              'Failed to load image',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showNotesDialog(BuildContext context, String notes) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey.shade900,
+        title: const Text('Trade Notes', style: TextStyle(color: Colors.white)),
+        content: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Text(notes, style: const TextStyle(color: Colors.white70)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
   }
