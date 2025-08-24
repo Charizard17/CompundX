@@ -60,7 +60,7 @@ class TradesTable extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'Balance: \${balance.toStringAsFixed(2)}',
+                          'Balance: \$${balance.toStringAsFixed(2)}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

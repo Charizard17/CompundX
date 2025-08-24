@@ -290,5 +290,71 @@ class TradeService extends ChangeNotifier {
       // No PNL - this is an open trade
       notes: 'Waiting for breakout confirmation',
     );
+
+    // Sample trade 4 - Loss (closed trade)
+    addTrade(
+      date: DateTime(2025, 9, 2),
+      time: '14:39',
+      exchange: 'Bybit',
+      symbol: 'BTCUSDT',
+      type: 'Long',
+      leverage: 10,
+      entryPrice: 117000.0,
+      quantity: 0.04,
+      pnl: -50.0,
+      notes: 'Stopped out, wrong market direction',
+    );
+
+    // Sample trade 5 - Loss (closed trade)
+    addTrade(
+      date: DateTime(2025, 9, 5),
+      time: '14:39',
+      exchange: 'Bybit',
+      symbol: 'BTCUSDT',
+      type: 'Long',
+      leverage: 10,
+      entryPrice: 117000.0,
+      quantity: 0.04,
+      pnl: 170.0,
+    );
+
+    // Sample trade 6 - Loss (closed trade)
+    addTrade(
+      date: DateTime(2025, 9, 22),
+      time: '14:39',
+      exchange: 'Bybit',
+      symbol: 'BTCUSDT',
+      type: 'Long',
+      leverage: 10,
+      entryPrice: 117000.0,
+      quantity: 0.04,
+      pnl: 150.0,
+    );
+
+    // Sample trade 7 - Loss (closed trade)
+    addTrade(
+      date: DateTime(2025, 9, 30),
+      time: '14:39',
+      exchange: 'Bybit',
+      symbol: 'BTCUSDT',
+      type: 'Long',
+      leverage: 10,
+      entryPrice: 117000.0,
+      quantity: 0.04,
+      pnl: 110.0,
+    );
+
+    // Sample trade 6 - Loss (closed trade)
+    addTrade(
+      date: DateTime(2025, 9, 30),
+      time: '14:39',
+      exchange: 'Bybit',
+      symbol: 'BTCUSDT',
+      type: 'Long',
+      leverage: 10,
+      entryPrice: 117000.0,
+      quantity: 0.04,
+      pnl: 190.0,
+    );
   }
 }

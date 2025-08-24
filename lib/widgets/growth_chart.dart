@@ -12,7 +12,9 @@ class GrowthChart extends StatefulWidget {
 
 class _GrowthChartState extends State<GrowthChart> {
   double _zoomLevel = 1.0;
-  bool _isLogScale = false;
+  bool _isLogScale = false; // LINEAR/LOG toggle
+  bool _showActualData = true; // NEW
+  bool _showTargetCurve = true; // NEW
   List<FlSpot> _targetDataPoints = [];
   List<FlSpot> _actualDataPoints = [];
   List<FlSpot> _visibleTargetPoints = [];
@@ -373,17 +375,19 @@ class _GrowthChartState extends State<GrowthChart> {
             ),
           ),
         ),
+
+        // Controls Row
         Container(
           decoration: BoxDecoration(
             color: Colors.grey.shade900,
-
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.grey.shade800),
           ),
           child: Row(
             children: [
-              SizedBox(width: 10),
-              // Scale Toggle Buttons
+              const SizedBox(width: 10),
+
+              // LINEAR/LOG Scale Toggle Buttons
               Container(
                 decoration: BoxDecoration(
                   color: Colors.grey.shade800,
@@ -459,6 +463,110 @@ class _GrowthChartState extends State<GrowthChart> {
                 ),
               ),
 
+              const Spacer(),
+              // Line toggles (Actual and Target)
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showActualData = !_showActualData;
+                        _updateChartBounds();
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _showActualData
+                            ? Colors.green.withOpacity(0.2)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: _showActualData
+                              ? Colors.green
+                              : Colors.grey.shade600,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 3,
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Actual',
+                            style: TextStyle(
+                              color: _showActualData
+                                  ? Colors.green
+                                  : Colors.grey.shade400,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showTargetCurve = !_showTargetCurve;
+                        _updateChartBounds();
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _showTargetCurve
+                            ? Colors.purpleAccent.withOpacity(0.2)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: _showTargetCurve
+                              ? Colors.purpleAccent
+                              : Colors.grey.shade600,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 3,
+                            decoration: BoxDecoration(
+                              color: Colors.purpleAccent,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Target',
+                            style: TextStyle(
+                              color: _showTargetCurve
+                                  ? Colors.purpleAccent
+                                  : Colors.grey.shade400,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
               // Zoom Controls
               Expanded(
                 child: Slider(
@@ -479,7 +587,9 @@ class _GrowthChartState extends State<GrowthChart> {
             ],
           ),
         ),
-        SizedBox(height: 10),
+
+        const SizedBox(height: 10),
+
         // Chart
         Expanded(
           child: Container(
@@ -489,162 +599,226 @@ class _GrowthChartState extends State<GrowthChart> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.grey.shade800),
             ),
-            child: LineChart(
-              LineChartData(
-                minX: _minX,
-                maxX: _maxX,
-                minY: _minY,
-                maxY: _maxY,
+            child: AnimatedBuilder(
+              animation: _tradeService,
+              builder: (context, child) {
+                // Regenerate data when trades change
+                _generateActualDataPoints();
+                _updateChartBounds();
 
-                // Clip data to prevent overflow
-                clipData: FlClipData.all(),
+                return LineChart(
+                  LineChartData(
+                    minX: _minX,
+                    maxX: _maxX,
+                    minY: _minY,
+                    maxY: _maxY,
 
-                // Grid and borders
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: true,
-                  drawHorizontalLine: true,
-                  horizontalInterval: _getYAxisInterval(),
-                  verticalInterval: _getXAxisInterval(),
-                  getDrawingHorizontalLine: (value) {
-                    return FlLine(
-                      color: Colors.grey.shade700.withOpacity(0.3),
-                      strokeWidth: 1,
-                    );
-                  },
-                  getDrawingVerticalLine: (value) {
-                    return FlLine(
-                      color: Colors.grey.shade700.withOpacity(0.3),
-                      strokeWidth: 1,
-                    );
-                  },
-                ),
+                    // Clip data to prevent overflow
+                    clipData: FlClipData.all(),
 
-                borderData: FlBorderData(
-                  show: true,
-                  border: Border.all(color: Colors.grey.shade600, width: 1),
-                ),
-
-                // Axes titles and labels
-                titlesData: FlTitlesData(
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 30,
-                      interval: _getXAxisInterval(),
-                      getTitlesWidget: (value, meta) {
-                        // Only show titles for values within our range
-                        if (value < _minX || value > _maxX) {
-                          return const SizedBox.shrink();
-                        }
-                        // Show label for exact interval values
-                        double interval = _getXAxisInterval();
-                        if (value % interval == 0) {
-                          return Text(
-                            'Week ${value.toInt()}',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 10,
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 60,
-                      interval: _getYAxisInterval(),
-                      getTitlesWidget: (value, meta) {
-                        // Only show titles for values within our range
-                        if (value < _minY || value > _maxY) {
-                          return const SizedBox.shrink();
-                        }
-                        return Text(
-                          _formatYAxisLabel(value),
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 10,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                ),
-
-                // Tooltip configuration
-                lineTouchData: LineTouchData(
-                  enabled: true,
-                  touchTooltipData: LineTouchTooltipData(
-                    tooltipPadding: const EdgeInsets.all(8),
-                    getTooltipItems: (touchedSpots) {
-                      return touchedSpots.map((touchedSpot) {
-                        String lineType = touchedSpot.barIndex == 0
-                            ? 'Target'
-                            : 'Actual';
-                        return LineTooltipItem(
-                          '$lineType\nWeek ${touchedSpot.x.toInt()}\n${_formatTooltipValue(touchedSpot.y)}',
-                          TextStyle(
-                            color: touchedSpot.barIndex == 0
-                                ? Colors.purpleAccent
-                                : Colors.green,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        );
-                      }).toList();
-                    },
-                  ),
-                  handleBuiltInTouches: true,
-                ),
-
-                // Line data - both target and actual lines
-                lineBarsData: [
-                  // Target line (purple)
-                  LineChartBarData(
-                    spots: _visibleTargetPoints,
-                    isCurved: true,
-                    color: Colors.purpleAccent,
-                    barWidth: 3,
-                    isStrokeCapRound: true,
-                    dotData: FlDotData(show: false),
-                    belowBarData: BarAreaData(
+                    // Grid and borders
+                    gridData: FlGridData(
                       show: true,
-                      color: Colors.purpleAccent.withOpacity(0.1),
+                      drawVerticalLine: true,
+                      drawHorizontalLine: true,
+                      horizontalInterval: _getYAxisInterval(),
+                      verticalInterval: _getXAxisInterval(),
+                      getDrawingHorizontalLine: (value) {
+                        return FlLine(
+                          color: Colors.grey.shade700.withOpacity(0.3),
+                          strokeWidth: 1,
+                        );
+                      },
+                      getDrawingVerticalLine: (value) {
+                        return FlLine(
+                          color: Colors.grey.shade700.withOpacity(0.3),
+                          strokeWidth: 1,
+                        );
+                      },
                     ),
-                  ),
-                  // Actual profit line (green/lime)
-                  if (_visibleActualPoints.isNotEmpty)
-                    LineChartBarData(
-                      spots: _visibleActualPoints,
-                      isCurved:
-                          false, // Keep actual line more angular to show real data points
-                      color: Colors.green,
-                      barWidth: 2,
-                      isStrokeCapRound: true,
-                      dotData: FlDotData(
-                        show: true,
-                        getDotPainter: (spot, percent, barData, index) {
-                          return FlDotCirclePainter(
-                            radius: 3,
-                            color: Colors.green,
-                            strokeWidth: 1,
-                            strokeColor: Colors.white,
-                          );
-                        },
+
+                    borderData: FlBorderData(
+                      show: true,
+                      border: Border.all(color: Colors.grey.shade600, width: 1),
+                    ),
+
+                    // Axes titles and labels
+                    titlesData: FlTitlesData(
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 30,
+                          interval: _getXAxisInterval(),
+                          getTitlesWidget: (value, meta) {
+                            // Only show titles for values within our range
+                            if (value < _minX || value > _maxX) {
+                              return const SizedBox.shrink();
+                            }
+                            // Show label for exact interval values
+                            double interval = _getXAxisInterval();
+                            if (value % interval == 0) {
+                              return Text(
+                                'Week ${value.toInt()}',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 10,
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                      ),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 60,
+                          interval: _getYAxisInterval(),
+                          getTitlesWidget: (value, meta) {
+                            // Only show titles for values within our range
+                            if (value < _minY || value > _maxY) {
+                              return const SizedBox.shrink();
+                            }
+                            return Text(
+                              _formatYAxisLabel(value),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 10,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
                       ),
                     ),
-                ],
-              ),
+
+                    // Tooltip configuration
+                    lineTouchData: LineTouchData(
+                      enabled: true,
+                      touchTooltipData: LineTouchTooltipData(
+                        tooltipPadding: const EdgeInsets.all(8),
+                        getTooltipItems: (touchedSpots) {
+                          return touchedSpots.map((touchedSpot) {
+                            String lineType = touchedSpot.barIndex == 0
+                                ? 'Target'
+                                : 'Actual';
+                            return LineTooltipItem(
+                              '$lineType\nWeek ${touchedSpot.x.toInt()}\n${_formatTooltipValue(touchedSpot.y)}',
+                              TextStyle(
+                                color: touchedSpot.barIndex == 0
+                                    ? Colors.purpleAccent
+                                    : Colors.green,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            );
+                          }).toList();
+                        },
+                      ),
+                      handleBuiltInTouches: true,
+                    ),
+
+                    // Line data - both target and actual lines
+                    lineBarsData: [
+                      if (_showTargetCurve)
+                        LineChartBarData(
+                          spots: _visibleTargetPoints,
+                          isCurved: true,
+                          color: Colors.purpleAccent,
+                          barWidth: 3,
+                          isStrokeCapRound: true,
+                          dotData: FlDotData(show: false),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            color: Colors.purpleAccent.withOpacity(0.1),
+                          ),
+                        ),
+                      if (_showActualData && _visibleActualPoints.isNotEmpty)
+                        LineChartBarData(
+                          spots: _visibleActualPoints,
+                          isCurved: false,
+                          color: Colors.green,
+                          barWidth: 2,
+                          isStrokeCapRound: true,
+                          dotData: FlDotData(
+                            show: true,
+                            getDotPainter: (spot, percent, barData, index) {
+                              return FlDotCirclePainter(
+                                radius: 3,
+                                color: Colors.green,
+                                strokeWidth: 1,
+                                strokeColor: Colors.white,
+                              );
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              },
             ),
+          ),
+        ),
+
+        // Statistics row
+        if (_actualDataPoints.isNotEmpty)
+          Container(
+            margin: const EdgeInsets.only(top: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade900,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade800),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStatColumn(
+                  'Current Balance',
+                  _formatCurrency(_tradeService.currentBalance),
+                  Colors.white,
+                ),
+                _buildStatColumn(
+                  'Total P&L',
+                  _formatCurrency(_tradeService.totalPnL),
+                  _tradeService.totalPnL >= 0 ? Colors.green : Colors.red,
+                ),
+                _buildStatColumn(
+                  'Win Rate',
+                  _tradeService.totalTrades > 0
+                      ? '${((_tradeService.winningTrades / _tradeService.totalTrades) * 100).toStringAsFixed(1)}%'
+                      : '0%',
+                  Colors.purpleAccent,
+                ),
+                _buildStatColumn(
+                  'Total Trades',
+                  '${_tradeService.totalTrades}',
+                  Colors.white70,
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildStatColumn(String title, String value, Color color) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(title, style: TextStyle(color: Colors.white70, fontSize: 12)),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            color: color,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ],
