@@ -1,3 +1,4 @@
+import 'package:compundx/constants/app_constants.dart';
 import 'package:compundx/widgets/add_trade_form.dart';
 import 'package:compundx/widgets/growth_chart.dart';
 import 'package:compundx/widgets/trades_table.dart';
@@ -18,7 +19,7 @@ class CompundX extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.purple,
-        scaffoldBackgroundColor: Colors.black,
+        scaffoldBackgroundColor: AppConstants.backgroundColor,
       ),
       home: DashboardScreen(),
     );

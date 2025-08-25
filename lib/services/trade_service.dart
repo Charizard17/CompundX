@@ -14,8 +14,8 @@ class TradeService extends ChangeNotifier {
   List<Trade> get trades => List.unmodifiable(_trades);
   double get initialBalance => _initialBalance;
   int get totalTrades => _trades.length;
-  int get winningTrades => _trades.where((t) => t.outcome == 'Win').length;
-  int get losingTrades => _trades.where((t) => t.outcome == 'Loss').length;
+  int get winningTrades => _trades.where((t) => t.result == 'Win').length;
+  int get losingTrades => _trades.where((t) => t.result == 'Loss').length;
   double get totalPnL => _trades.fold(0.0, (sum, trade) => sum + trade.pnl);
 
   // Calculate current balance based on initial balance + all PnL
@@ -94,11 +94,11 @@ class TradeService extends ChangeNotifier {
     if (tradeIndex != -1) {
       final originalTrade = _trades[tradeIndex];
 
-      // Recalculate sizeUSDT if relevant fields are updated
+      // Recalculate sizeUSD if relevant fields are updated
       final newEntryPrice = entryPrice ?? originalTrade.entryPrice;
       final newQuantity = quantity ?? originalTrade.quantity;
       final newLeverage = leverage ?? originalTrade.leverage;
-      final newSizeUSDT = Trade.calculateSize(
+      final newsizeUSD = Trade.calculateSize(
         newEntryPrice,
         newQuantity,
         newLeverage,
@@ -113,7 +113,7 @@ class TradeService extends ChangeNotifier {
         leverage: leverage,
         entryPrice: entryPrice,
         quantity: quantity,
-        sizeUSDT: newSizeUSDT,
+        sizeUSD: newsizeUSD,
         pnl: pnl,
         beforeScreenshotUrl: beforeScreenshotUrl,
         afterScreenshotUrl: afterScreenshotUrl,

@@ -1,3 +1,4 @@
+import 'package:compundx/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math' as math;
@@ -368,8 +369,8 @@ class _GrowthChartState extends State<GrowthChart> {
             'ROAD TO \$1 MILLION',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
+              color: AppConstants.textPrimaryColor,
+              fontSize: AppConstants.titleFontSize,
               fontWeight: FontWeight.bold,
               letterSpacing: 2,
             ),
@@ -379,9 +380,9 @@ class _GrowthChartState extends State<GrowthChart> {
         // Controls Row
         Container(
           decoration: BoxDecoration(
-            color: Colors.grey.shade900,
+            color: AppConstants.surfaceColor,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade800),
+            border: Border.all(color: AppConstants.cardColor),
           ),
           child: Row(
             children: [
@@ -390,9 +391,9 @@ class _GrowthChartState extends State<GrowthChart> {
               // LINEAR/LOG Scale Toggle Buttons
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade800,
+                  color: AppConstants.cardColor,
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: Colors.grey.shade600),
+                  border: Border.all(color: AppConstants.borderColor),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -411,7 +412,7 @@ class _GrowthChartState extends State<GrowthChart> {
                         ),
                         decoration: BoxDecoration(
                           color: !_isLogScale
-                              ? Colors.purpleAccent
+                              ? AppConstants.primaryColor
                               : Colors.transparent,
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(6),
@@ -421,8 +422,10 @@ class _GrowthChartState extends State<GrowthChart> {
                         child: Text(
                           'LINEAR',
                           style: TextStyle(
-                            color: !_isLogScale ? Colors.white : Colors.white70,
-                            fontSize: 12,
+                            color: !_isLogScale
+                                ? AppConstants.textPrimaryColor
+                                : AppConstants.textSecondaryColor,
+                            fontSize: AppConstants.smallFontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -442,7 +445,7 @@ class _GrowthChartState extends State<GrowthChart> {
                         ),
                         decoration: BoxDecoration(
                           color: _isLogScale
-                              ? Colors.purpleAccent
+                              ? AppConstants.primaryColor
                               : Colors.transparent,
                           borderRadius: const BorderRadius.only(
                             topRight: Radius.circular(6),
@@ -452,8 +455,10 @@ class _GrowthChartState extends State<GrowthChart> {
                         child: Text(
                           'LOG',
                           style: TextStyle(
-                            color: _isLogScale ? Colors.white : Colors.white70,
-                            fontSize: 12,
+                            color: _isLogScale
+                                ? AppConstants.textPrimaryColor
+                                : AppConstants.textSecondaryColor,
+                            fontSize: AppConstants.smallFontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -481,13 +486,13 @@ class _GrowthChartState extends State<GrowthChart> {
                       ),
                       decoration: BoxDecoration(
                         color: _showActualData
-                            ? Colors.green.withOpacity(0.2)
+                            ? AppConstants.successColor.withOpacity(0.2)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(4),
                         border: Border.all(
                           color: _showActualData
-                              ? Colors.green
-                              : Colors.grey.shade600,
+                              ? AppConstants.successColor
+                              : AppConstants.borderColor,
                         ),
                       ),
                       child: Row(
@@ -497,7 +502,7 @@ class _GrowthChartState extends State<GrowthChart> {
                             width: 12,
                             height: 3,
                             decoration: BoxDecoration(
-                              color: Colors.green,
+                              color: AppConstants.successColor,
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
@@ -506,9 +511,9 @@ class _GrowthChartState extends State<GrowthChart> {
                             'Actual',
                             style: TextStyle(
                               color: _showActualData
-                                  ? Colors.green
-                                  : Colors.grey.shade400,
-                              fontSize: 11,
+                                  ? AppConstants.successColor
+                                  : AppConstants.textPrimaryColor,
+                              fontSize: AppConstants.smallFontSize,
                             ),
                           ),
                         ],
@@ -530,13 +535,13 @@ class _GrowthChartState extends State<GrowthChart> {
                       ),
                       decoration: BoxDecoration(
                         color: _showTargetCurve
-                            ? Colors.purpleAccent.withOpacity(0.2)
+                            ? AppConstants.primaryColor.withOpacity(0.2)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(4),
                         border: Border.all(
                           color: _showTargetCurve
-                              ? Colors.purpleAccent
-                              : Colors.grey.shade600,
+                              ? AppConstants.primaryColor
+                              : AppConstants.borderColor,
                         ),
                       ),
                       child: Row(
@@ -546,7 +551,7 @@ class _GrowthChartState extends State<GrowthChart> {
                             width: 12,
                             height: 3,
                             decoration: BoxDecoration(
-                              color: Colors.purpleAccent,
+                              color: AppConstants.primaryColor,
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
@@ -555,9 +560,9 @@ class _GrowthChartState extends State<GrowthChart> {
                             'Target',
                             style: TextStyle(
                               color: _showTargetCurve
-                                  ? Colors.purpleAccent
-                                  : Colors.grey.shade400,
-                              fontSize: 11,
+                                  ? AppConstants.primaryColor
+                                  : AppConstants.textPrimaryColor,
+                              fontSize: AppConstants.smallFontSize,
                             ),
                           ),
                         ],
@@ -574,8 +579,8 @@ class _GrowthChartState extends State<GrowthChart> {
                   min: 1.0,
                   max: 6.0,
                   divisions: 20,
-                  activeColor: Colors.purpleAccent,
-                  inactiveColor: Colors.grey.shade600,
+                  activeColor: AppConstants.primaryColor,
+                  inactiveColor: AppConstants.borderColor,
                   onChanged: (value) {
                     setState(() {
                       _zoomLevel = value;
@@ -595,9 +600,9 @@ class _GrowthChartState extends State<GrowthChart> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.grey.shade900,
+              color: AppConstants.surfaceColor,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade800),
+              border: Border.all(color: AppConstants.cardColor),
             ),
             child: AnimatedBuilder(
               animation: _tradeService,
@@ -625,13 +630,13 @@ class _GrowthChartState extends State<GrowthChart> {
                       verticalInterval: _getXAxisInterval(),
                       getDrawingHorizontalLine: (value) {
                         return FlLine(
-                          color: Colors.grey.shade700.withOpacity(0.3),
+                          color: AppConstants.dividerColor.withOpacity(0.3),
                           strokeWidth: 1,
                         );
                       },
                       getDrawingVerticalLine: (value) {
                         return FlLine(
-                          color: Colors.grey.shade700.withOpacity(0.3),
+                          color: AppConstants.dividerColor.withOpacity(0.3),
                           strokeWidth: 1,
                         );
                       },
@@ -639,7 +644,10 @@ class _GrowthChartState extends State<GrowthChart> {
 
                     borderData: FlBorderData(
                       show: true,
-                      border: Border.all(color: Colors.grey.shade600, width: 1),
+                      border: Border.all(
+                        color: AppConstants.borderColor,
+                        width: 1,
+                      ),
                     ),
 
                     // Axes titles and labels
@@ -660,8 +668,8 @@ class _GrowthChartState extends State<GrowthChart> {
                               return Text(
                                 'Week ${value.toInt()}',
                                 style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 10,
+                                  color: AppConstants.textSecondaryColor,
+                                  fontSize: AppConstants.smallFontSize,
                                 ),
                               );
                             }
@@ -682,8 +690,8 @@ class _GrowthChartState extends State<GrowthChart> {
                             return Text(
                               _formatYAxisLabel(value),
                               style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 10,
+                                color: AppConstants.textSecondaryColor,
+                                fontSize: AppConstants.smallFontSize,
                               ),
                             );
                           },
@@ -711,10 +719,10 @@ class _GrowthChartState extends State<GrowthChart> {
                               '$lineType\nWeek ${touchedSpot.x.toInt()}\n${_formatTooltipValue(touchedSpot.y)}',
                               TextStyle(
                                 color: touchedSpot.barIndex == 0
-                                    ? Colors.purpleAccent
-                                    : Colors.green,
+                                    ? AppConstants.primaryColor
+                                    : AppConstants.successColor,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                                fontSize: AppConstants.smallFontSize,
                               ),
                             );
                           }).toList();
@@ -729,20 +737,20 @@ class _GrowthChartState extends State<GrowthChart> {
                         LineChartBarData(
                           spots: _visibleTargetPoints,
                           isCurved: true,
-                          color: Colors.purpleAccent,
+                          color: AppConstants.primaryColor,
                           barWidth: 3,
                           isStrokeCapRound: true,
                           dotData: FlDotData(show: false),
                           belowBarData: BarAreaData(
                             show: true,
-                            color: Colors.purpleAccent.withOpacity(0.1),
+                            color: AppConstants.primaryColor.withOpacity(0.1),
                           ),
                         ),
                       if (_showActualData && _visibleActualPoints.isNotEmpty)
                         LineChartBarData(
                           spots: _visibleActualPoints,
                           isCurved: false,
-                          color: Colors.green,
+                          color: AppConstants.successColor,
                           barWidth: 2,
                           isStrokeCapRound: true,
                           dotData: FlDotData(
@@ -750,9 +758,9 @@ class _GrowthChartState extends State<GrowthChart> {
                             getDotPainter: (spot, percent, barData, index) {
                               return FlDotCirclePainter(
                                 radius: 3,
-                                color: Colors.green,
+                                color: AppConstants.successColor,
                                 strokeWidth: 1,
-                                strokeColor: Colors.white,
+                                strokeColor: AppConstants.textPrimaryColor,
                               );
                             },
                           ),
@@ -771,9 +779,9 @@ class _GrowthChartState extends State<GrowthChart> {
             margin: const EdgeInsets.only(top: 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.grey.shade900,
+              color: AppConstants.surfaceColor,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade800),
+              border: Border.all(color: AppConstants.cardColor),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -781,24 +789,26 @@ class _GrowthChartState extends State<GrowthChart> {
                 _buildStatColumn(
                   'Current Balance',
                   _formatCurrency(_tradeService.currentBalance),
-                  Colors.white,
+                  AppConstants.textPrimaryColor,
                 ),
                 _buildStatColumn(
                   'Total P&L',
                   _formatCurrency(_tradeService.totalPnL),
-                  _tradeService.totalPnL >= 0 ? Colors.green : Colors.red,
+                  _tradeService.totalPnL >= 0
+                      ? AppConstants.successColor
+                      : AppConstants.errorColor,
                 ),
                 _buildStatColumn(
                   'Win Rate',
                   _tradeService.totalTrades > 0
                       ? '${((_tradeService.winningTrades / _tradeService.totalTrades) * 100).toStringAsFixed(1)}%'
                       : '0%',
-                  Colors.purpleAccent,
+                  AppConstants.primaryColor,
                 ),
                 _buildStatColumn(
                   'Total Trades',
                   '${_tradeService.totalTrades}',
-                  Colors.white70,
+                  AppConstants.textSecondaryColor,
                 ),
               ],
             ),
@@ -811,13 +821,19 @@ class _GrowthChartState extends State<GrowthChart> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(title, style: TextStyle(color: Colors.white70, fontSize: 12)),
+        Text(
+          title,
+          style: TextStyle(
+            color: AppConstants.textSecondaryColor,
+            fontSize: AppConstants.smallFontSize,
+          ),
+        ),
         const SizedBox(height: 4),
         Text(
           value,
           style: TextStyle(
             color: color,
-            fontSize: 16,
+            fontSize: AppConstants.largeFontSize,
             fontWeight: FontWeight.bold,
           ),
         ),

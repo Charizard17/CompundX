@@ -8,8 +8,8 @@ class Trade {
   final int leverage;
   final double entryPrice;
   final double quantity;
-  final double sizeUSDT;
-  final String outcome;
+  final double sizeUSD;
+  final String result;
   final double pnl;
   // New optional properties
   final String? beforeScreenshotUrl;
@@ -26,8 +26,8 @@ class Trade {
     required this.leverage,
     required this.entryPrice,
     required this.quantity,
-    required this.sizeUSDT,
-    required this.outcome,
+    required this.sizeUSD,
+    required this.result,
     required this.pnl,
     this.beforeScreenshotUrl,
     this.afterScreenshotUrl,
@@ -43,8 +43,8 @@ class Trade {
     return (entryPrice * quantity) / leverage;
   }
 
-  // Determine outcome based on PNL
-  static String determineOutcome(double pnl) {
+  // Determine result based on PNL
+  static String determineResult(double pnl) {
     if (pnl > 0) return 'Win';
     if (pnl < 0) return 'Loss';
     return '–'; // Dash for zero or unknown PNL
@@ -66,8 +66,8 @@ class Trade {
     String? afterScreenshotUrl,
     String? notes,
   }) {
-    final sizeUSDT = calculateSize(entryPrice, quantity, leverage);
-    final outcome = determineOutcome(pnl);
+    final sizeUSD = calculateSize(entryPrice, quantity, leverage);
+    final result = determineResult(pnl);
 
     return Trade(
       id: id,
@@ -79,8 +79,8 @@ class Trade {
       leverage: leverage,
       entryPrice: entryPrice,
       quantity: quantity,
-      sizeUSDT: sizeUSDT,
-      outcome: outcome,
+      sizeUSD: sizeUSD,
+      result: result,
       pnl: pnl,
       beforeScreenshotUrl: beforeScreenshotUrl,
       afterScreenshotUrl: afterScreenshotUrl,
@@ -99,17 +99,17 @@ class Trade {
     int? leverage,
     double? entryPrice,
     double? quantity,
-    double? sizeUSDT,
-    String? outcome,
+    double? sizeUSD,
+    String? result,
     double? pnl,
     String? beforeScreenshotUrl,
     String? afterScreenshotUrl,
     String? notes,
   }) {
     final newPnl = pnl ?? this.pnl;
-    final newOutcome = pnl != null
-        ? determineOutcome(newPnl)
-        : (outcome ?? this.outcome);
+    final newResult = pnl != null
+        ? determineResult(newPnl)
+        : (result ?? this.result);
 
     return Trade(
       id: id ?? this.id,
@@ -121,8 +121,8 @@ class Trade {
       leverage: leverage ?? this.leverage,
       entryPrice: entryPrice ?? this.entryPrice,
       quantity: quantity ?? this.quantity,
-      sizeUSDT: sizeUSDT ?? this.sizeUSDT,
-      outcome: newOutcome,
+      sizeUSD: sizeUSD ?? this.sizeUSD,
+      result: newResult,
       pnl: newPnl,
       beforeScreenshotUrl: beforeScreenshotUrl ?? this.beforeScreenshotUrl,
       afterScreenshotUrl: afterScreenshotUrl ?? this.afterScreenshotUrl,
@@ -141,8 +141,8 @@ class Trade {
       'leverage': leverage,
       'entryPrice': entryPrice,
       'quantity': quantity,
-      'sizeUSDT': sizeUSDT,
-      'outcome': outcome,
+      'sizeUSD': sizeUSD,
+      'result': result,
       'pnl': pnl,
       'beforeScreenshotUrl': beforeScreenshotUrl,
       'afterScreenshotUrl': afterScreenshotUrl,
@@ -161,8 +161,8 @@ class Trade {
       leverage: json['leverage'],
       entryPrice: json['entryPrice'],
       quantity: json['quantity'],
-      sizeUSDT: json['sizeUSDT'],
-      outcome: json['outcome'],
+      sizeUSD: json['sizeUSD'],
+      result: json['result'],
       pnl: json['pnl'],
       beforeScreenshotUrl: json['beforeScreenshotUrl'],
       afterScreenshotUrl: json['afterScreenshotUrl'],

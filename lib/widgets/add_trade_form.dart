@@ -1,3 +1,4 @@
+import 'package:compundx/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/trade_service.dart';
@@ -50,10 +51,10 @@ class _AddTradeFormState extends State<AddTradeForm> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Colors.purpleAccent,
-              onPrimary: Colors.white,
-              surface: Colors.grey,
-              onSurface: Colors.white,
+              primary: AppConstants.primaryColor,
+              onPrimary: AppConstants.textPrimaryColor,
+              surface: AppConstants.disabledColor,
+              onSurface: AppConstants.textPrimaryColor,
             ),
           ),
           child: child!,
@@ -76,10 +77,10 @@ class _AddTradeFormState extends State<AddTradeForm> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Colors.purpleAccent,
-              onPrimary: Colors.white,
-              surface: Colors.grey,
-              onSurface: Colors.white,
+              primary: AppConstants.primaryColor,
+              onPrimary: AppConstants.textPrimaryColor,
+              surface: AppConstants.disabledColor,
+              onSurface: AppConstants.textPrimaryColor,
             ),
           ),
           child: child!,
@@ -128,7 +129,7 @@ class _AddTradeFormState extends State<AddTradeForm> {
                 ? 'Open trade added successfully!'
                 : 'Closed trade added successfully!',
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: AppConstants.successColor,
         ),
       );
     }
@@ -139,9 +140,9 @@ class _AddTradeFormState extends State<AddTradeForm> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade900,
+        color: AppConstants.surfaceColor,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade800),
+        border: Border.all(color: AppConstants.cardColor),
       ),
       child: Form(
         key: _formKey,
@@ -151,8 +152,8 @@ class _AddTradeFormState extends State<AddTradeForm> {
             const Text(
               'Add Trade',
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
+                color: AppConstants.textPrimaryColor,
+                fontSize: AppConstants.headerFontSize,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -228,8 +229,8 @@ class _AddTradeFormState extends State<AddTradeForm> {
                   child: ElevatedButton(
                     onPressed: _submitTrade,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purpleAccent,
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppConstants.primaryColor,
+                      foregroundColor: AppConstants.textPrimaryColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4),
                       ),
@@ -242,17 +243,6 @@ class _AddTradeFormState extends State<AddTradeForm> {
                 ),
               ],
             ),
-
-            // Help text
-            const SizedBox(height: 8),
-            Text(
-              'Tip: Leave PNL empty for open trades. You can edit trades later to add PNL when closed.',
-              style: TextStyle(
-                color: Colors.grey.shade400,
-                fontSize: 11,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
           ],
         ),
       ),
@@ -264,22 +254,28 @@ class _AddTradeFormState extends State<AddTradeForm> {
       controller: _dateController,
       readOnly: true,
       onTap: _selectDate,
-      style: const TextStyle(color: Colors.white, fontSize: 12),
+      style: const TextStyle(
+        color: AppConstants.textPrimaryColor,
+        fontSize: AppConstants.smallFontSize,
+      ),
       decoration: InputDecoration(
         labelText: 'Date',
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 10),
+        labelStyle: const TextStyle(
+          color: AppConstants.textSecondaryColor,
+          fontSize: AppConstants.smallFontSize,
+        ),
         filled: true,
-        fillColor: Colors.grey.shade800,
+        fillColor: AppConstants.cardColor,
         border: const OutlineInputBorder(),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey.shade600),
+          borderSide: BorderSide(color: AppConstants.borderColor),
         ),
         focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.purpleAccent),
+          borderSide: BorderSide(color: AppConstants.primaryColor),
         ),
         suffixIcon: const Icon(
           Icons.calendar_today,
-          color: Colors.white70,
+          color: AppConstants.textSecondaryColor,
           size: 16,
         ),
       ),
@@ -297,22 +293,28 @@ class _AddTradeFormState extends State<AddTradeForm> {
       controller: _timeController,
       readOnly: true,
       onTap: _selectTime,
-      style: const TextStyle(color: Colors.white, fontSize: 12),
+      style: const TextStyle(
+        color: AppConstants.textPrimaryColor,
+        fontSize: AppConstants.smallFontSize,
+      ),
       decoration: InputDecoration(
         labelText: 'Time',
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 10),
+        labelStyle: const TextStyle(
+          color: AppConstants.textSecondaryColor,
+          fontSize: AppConstants.smallFontSize,
+        ),
         filled: true,
-        fillColor: Colors.grey.shade800,
+        fillColor: AppConstants.cardColor,
         border: const OutlineInputBorder(),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey.shade600),
+          borderSide: BorderSide(color: AppConstants.borderColor),
         ),
         focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.purpleAccent),
+          borderSide: BorderSide(color: AppConstants.primaryColor),
         ),
         suffixIcon: const Icon(
           Icons.access_time,
-          color: Colors.white70,
+          color: AppConstants.textSecondaryColor,
           size: 16,
         ),
       ),
@@ -332,18 +334,24 @@ class _AddTradeFormState extends State<AddTradeForm> {
   }) {
     return TextFormField(
       controller: controller,
-      style: const TextStyle(color: Colors.white, fontSize: 12),
+      style: const TextStyle(
+        color: AppConstants.textPrimaryColor,
+        fontSize: AppConstants.smallFontSize,
+      ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 10),
+        labelStyle: const TextStyle(
+          color: AppConstants.textSecondaryColor,
+          fontSize: AppConstants.smallFontSize,
+        ),
         filled: true,
-        fillColor: Colors.grey.shade800,
+        fillColor: AppConstants.cardColor,
         border: const OutlineInputBorder(),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey.shade600),
+          borderSide: BorderSide(color: AppConstants.borderColor),
         ),
         focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.purpleAccent),
+          borderSide: BorderSide(color: AppConstants.primaryColor),
         ),
       ),
       validator: required
@@ -375,18 +383,24 @@ class _AddTradeFormState extends State<AddTradeForm> {
             RegExp(allowNegative ? r'^-?\d*\.?\d*' : r'^\d*\.?\d*'),
           ),
       ],
-      style: const TextStyle(color: Colors.white, fontSize: 12),
+      style: const TextStyle(
+        color: AppConstants.textPrimaryColor,
+        fontSize: AppConstants.smallFontSize,
+      ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 10),
+        labelStyle: const TextStyle(
+          color: AppConstants.textSecondaryColor,
+          fontSize: AppConstants.smallFontSize,
+        ),
         filled: true,
-        fillColor: Colors.grey.shade800,
+        fillColor: AppConstants.cardColor,
         border: const OutlineInputBorder(),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey.shade600),
+          borderSide: BorderSide(color: AppConstants.borderColor),
         ),
         focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.purpleAccent),
+          borderSide: BorderSide(color: AppConstants.primaryColor),
         ),
       ),
       validator: (value) {
@@ -412,19 +426,25 @@ class _AddTradeFormState extends State<AddTradeForm> {
   Widget _buildTypeDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedType,
-      style: const TextStyle(color: Colors.white, fontSize: 12),
-      dropdownColor: Colors.grey.shade800,
+      style: const TextStyle(
+        color: AppConstants.textPrimaryColor,
+        fontSize: AppConstants.smallFontSize,
+      ),
+      dropdownColor: AppConstants.cardColor,
       decoration: InputDecoration(
         labelText: 'Type',
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 10),
+        labelStyle: const TextStyle(
+          color: AppConstants.textSecondaryColor,
+          fontSize: AppConstants.smallFontSize,
+        ),
         filled: true,
-        fillColor: Colors.grey.shade800,
+        fillColor: AppConstants.cardColor,
         border: const OutlineInputBorder(),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey.shade600),
+          borderSide: BorderSide(color: AppConstants.borderColor),
         ),
         focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.purpleAccent),
+          borderSide: BorderSide(color: AppConstants.primaryColor),
         ),
       ),
       items: ['Long', 'Short'].map((String type) {

@@ -1,3 +1,4 @@
+import 'package:compundx/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/trade.dart';
@@ -96,10 +97,10 @@ class _EditTradeDialogState extends State<EditTradeDialog>
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Colors.purpleAccent,
-              onPrimary: Colors.white,
-              surface: Colors.grey,
-              onSurface: Colors.white,
+              primary: AppConstants.primaryColor,
+              onPrimary: AppConstants.textPrimaryColor,
+              surface: AppConstants.disabledColor,
+              onSurface: AppConstants.textPrimaryColor,
             ),
           ),
           child: child!,
@@ -122,10 +123,10 @@ class _EditTradeDialogState extends State<EditTradeDialog>
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Colors.purpleAccent,
-              onPrimary: Colors.white,
-              surface: Colors.grey,
-              onSurface: Colors.white,
+              primary: AppConstants.primaryColor,
+              onPrimary: AppConstants.textPrimaryColor,
+              surface: AppConstants.disabledColor,
+              onSurface: AppConstants.textPrimaryColor,
             ),
           ),
           child: child!,
@@ -173,7 +174,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Trade updated successfully!'),
-          backgroundColor: Colors.green,
+          backgroundColor: AppConstants.successColor,
         ),
       );
     }
@@ -183,14 +184,14 @@ class _EditTradeDialogState extends State<EditTradeDialog>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.grey.shade900,
+        backgroundColor: AppConstants.surfaceColor,
         title: const Text(
           'Delete Trade',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: AppConstants.textPrimaryColor),
         ),
         content: const Text(
           'Are you sure you want to delete this trade? This action cannot be undone.',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: AppConstants.textSecondaryColor),
         ),
         actions: [
           TextButton(
@@ -206,11 +207,14 @@ class _EditTradeDialogState extends State<EditTradeDialog>
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Trade deleted successfully!'),
-                  backgroundColor: Colors.red,
+                  backgroundColor: AppConstants.errorColor,
                 ),
               );
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppConstants.errorColor),
+            ),
           ),
         ],
       ),
@@ -220,7 +224,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Colors.grey.shade900,
+      backgroundColor: AppConstants.surfaceColor,
       child: Container(
         width: MediaQuery.of(context).size.width * 0.8,
         height: MediaQuery.of(context).size.height * 0.8,
@@ -236,8 +240,8 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                   Text(
                     'Edit Trade #${widget.trade.id}',
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
+                      color: AppConstants.textPrimaryColor,
+                      fontSize: AppConstants.headerFontSize,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -245,12 +249,18 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                     children: [
                       IconButton(
                         onPressed: _deleteTrade,
-                        icon: const Icon(Icons.delete, color: Colors.red),
+                        icon: const Icon(
+                          Icons.delete,
+                          color: AppConstants.errorColor,
+                        ),
                         tooltip: 'Delete Trade',
                       ),
                       IconButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.close, color: Colors.white),
+                        icon: const Icon(
+                          Icons.close,
+                          color: AppConstants.textPrimaryColor,
+                        ),
                       ),
                     ],
                   ),
@@ -261,9 +271,9 @@ class _EditTradeDialogState extends State<EditTradeDialog>
               // Tab Bar
               TabBar(
                 controller: _tabController,
-                labelColor: Colors.purpleAccent,
-                unselectedLabelColor: Colors.white70,
-                indicatorColor: Colors.purpleAccent,
+                labelColor: AppConstants.primaryColor,
+                unselectedLabelColor: AppConstants.textSecondaryColor,
+                indicatorColor: AppConstants.primaryColor,
                 tabs: const [
                   Tab(text: 'Trade Details'),
                   Tab(text: 'Screenshots & Notes'),
@@ -296,8 +306,8 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                   ElevatedButton(
                     onPressed: _updateTrade,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purpleAccent,
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppConstants.primaryColor,
+                      foregroundColor: AppConstants.textPrimaryColor,
                     ),
                     child: const Text('Save Changes'),
                   ),
@@ -389,18 +399,25 @@ class _EditTradeDialogState extends State<EditTradeDialog>
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade800.withOpacity(0.5),
+              color: AppConstants.cardColor.withOpacity(0.5),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade700),
+              border: Border.all(color: AppConstants.dividerColor),
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline, color: Colors.blue.shade300, size: 16),
+                Icon(
+                  Icons.info_outline,
+                  color: AppConstants.infoColor,
+                  size: 16,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Leave PNL empty for open trades. When you close the trade, come back and add the PNL value.',
-                    style: TextStyle(color: Colors.grey.shade300, fontSize: 12),
+                    style: TextStyle(
+                      color: AppConstants.textSecondaryColor,
+                      fontSize: AppConstants.smallFontSize,
+                    ),
                   ),
                 ),
               ],
@@ -419,8 +436,8 @@ class _EditTradeDialogState extends State<EditTradeDialog>
           Text(
             'Screenshots',
             style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
+              color: AppConstants.textPrimaryColor,
+              fontSize: AppConstants.largeFontSize,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -443,8 +460,8 @@ class _EditTradeDialogState extends State<EditTradeDialog>
           Text(
             'Notes',
             style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
+              color: AppConstants.textPrimaryColor,
+              fontSize: AppConstants.largeFontSize,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -453,20 +470,26 @@ class _EditTradeDialogState extends State<EditTradeDialog>
           TextFormField(
             controller: _notesController,
             maxLines: 5,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
+            style: const TextStyle(
+              color: AppConstants.textPrimaryColor,
+              fontSize: AppConstants.mediumFontSize,
+            ),
             decoration: InputDecoration(
               labelText: 'Trade Notes',
               hintText: 'Add any notes about this trade...',
-              hintStyle: TextStyle(color: Colors.grey.shade500),
-              labelStyle: const TextStyle(color: Colors.white70, fontSize: 12),
+              hintStyle: TextStyle(color: AppConstants.textHintColor),
+              labelStyle: const TextStyle(
+                color: AppConstants.textSecondaryColor,
+                fontSize: AppConstants.smallFontSize,
+              ),
               filled: true,
-              fillColor: Colors.grey.shade800,
+              fillColor: AppConstants.cardColor,
               border: const OutlineInputBorder(),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey.shade600),
+                borderSide: BorderSide(color: AppConstants.borderColor),
               ),
               focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.purpleAccent),
+                borderSide: BorderSide(color: AppConstants.primaryColor),
               ),
             ),
           ),
@@ -478,8 +501,8 @@ class _EditTradeDialogState extends State<EditTradeDialog>
             Text(
               'Preview',
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
+                color: AppConstants.textPrimaryColor,
+                fontSize: AppConstants.largeFontSize,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -492,13 +515,16 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                       children: [
                         Text(
                           'Before',
-                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                          style: TextStyle(
+                            color: AppConstants.textSecondaryColor,
+                            fontSize: AppConstants.smallFontSize,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Container(
                           height: 100,
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade600),
+                            border: Border.all(color: AppConstants.borderColor),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: ClipRRect(
@@ -509,9 +535,12 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                               width: double.infinity,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
-                                  color: Colors.grey.shade800,
+                                  color: AppConstants.cardColor,
                                   child: const Center(
-                                    child: Icon(Icons.error, color: Colors.red),
+                                    child: Icon(
+                                      Icons.error,
+                                      color: AppConstants.errorColor,
+                                    ),
                                   ),
                                 );
                               },
@@ -530,13 +559,16 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                       children: [
                         Text(
                           'After',
-                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                          style: TextStyle(
+                            color: AppConstants.textSecondaryColor,
+                            fontSize: AppConstants.smallFontSize,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Container(
                           height: 100,
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade600),
+                            border: Border.all(color: AppConstants.borderColor),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: ClipRRect(
@@ -547,9 +579,12 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                               width: double.infinity,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
-                                  color: Colors.grey.shade800,
+                                  color: AppConstants.cardColor,
                                   child: const Center(
-                                    child: Icon(Icons.error, color: Colors.red),
+                                    child: Icon(
+                                      Icons.error,
+                                      color: AppConstants.errorColor,
+                                    ),
                                   ),
                                 );
                               },
@@ -572,22 +607,28 @@ class _EditTradeDialogState extends State<EditTradeDialog>
       controller: _dateController,
       readOnly: true,
       onTap: _selectDate,
-      style: const TextStyle(color: Colors.white, fontSize: 14),
+      style: const TextStyle(
+        color: AppConstants.textPrimaryColor,
+        fontSize: AppConstants.mediumFontSize,
+      ),
       decoration: InputDecoration(
         labelText: 'Date',
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 12),
+        labelStyle: const TextStyle(
+          color: AppConstants.textSecondaryColor,
+          fontSize: AppConstants.smallFontSize,
+        ),
         filled: true,
-        fillColor: Colors.grey.shade800,
+        fillColor: AppConstants.cardColor,
         border: const OutlineInputBorder(),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey.shade600),
+          borderSide: BorderSide(color: AppConstants.borderColor),
         ),
         focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.purpleAccent),
+          borderSide: BorderSide(color: AppConstants.primaryColor),
         ),
         suffixIcon: const Icon(
           Icons.calendar_today,
-          color: Colors.white70,
+          color: AppConstants.textSecondaryColor,
           size: 18,
         ),
       ),
@@ -605,22 +646,28 @@ class _EditTradeDialogState extends State<EditTradeDialog>
       controller: _timeController,
       readOnly: true,
       onTap: _selectTime,
-      style: const TextStyle(color: Colors.white, fontSize: 14),
+      style: const TextStyle(
+        color: AppConstants.textPrimaryColor,
+        fontSize: AppConstants.mediumFontSize,
+      ),
       decoration: InputDecoration(
         labelText: 'Time',
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 12),
+        labelStyle: const TextStyle(
+          color: AppConstants.textSecondaryColor,
+          fontSize: AppConstants.smallFontSize,
+        ),
         filled: true,
-        fillColor: Colors.grey.shade800,
+        fillColor: AppConstants.cardColor,
         border: const OutlineInputBorder(),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey.shade600),
+          borderSide: BorderSide(color: AppConstants.borderColor),
         ),
         focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.purpleAccent),
+          borderSide: BorderSide(color: AppConstants.primaryColor),
         ),
         suffixIcon: const Icon(
           Icons.access_time,
-          color: Colors.white70,
+          color: AppConstants.textSecondaryColor,
           size: 18,
         ),
       ),
@@ -641,20 +688,26 @@ class _EditTradeDialogState extends State<EditTradeDialog>
   }) {
     return TextFormField(
       controller: controller,
-      style: const TextStyle(color: Colors.white, fontSize: 14),
+      style: const TextStyle(
+        color: AppConstants.textPrimaryColor,
+        fontSize: AppConstants.mediumFontSize,
+      ),
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,
-        hintStyle: TextStyle(color: Colors.grey.shade500),
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 12),
+        hintStyle: TextStyle(color: AppConstants.textHintColor),
+        labelStyle: const TextStyle(
+          color: AppConstants.textSecondaryColor,
+          fontSize: AppConstants.smallFontSize,
+        ),
         filled: true,
-        fillColor: Colors.grey.shade800,
+        fillColor: AppConstants.cardColor,
         border: const OutlineInputBorder(),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey.shade600),
+          borderSide: BorderSide(color: AppConstants.borderColor),
         ),
         focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.purpleAccent),
+          borderSide: BorderSide(color: AppConstants.primaryColor),
         ),
       ),
       validator: required
@@ -686,18 +739,24 @@ class _EditTradeDialogState extends State<EditTradeDialog>
             RegExp(allowNegative ? r'^-?\d*\.?\d*' : r'^\d*\.?\d*'),
           ),
       ],
-      style: const TextStyle(color: Colors.white, fontSize: 14),
+      style: const TextStyle(
+        color: AppConstants.textPrimaryColor,
+        fontSize: AppConstants.mediumFontSize,
+      ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 12),
+        labelStyle: const TextStyle(
+          color: AppConstants.textSecondaryColor,
+          fontSize: AppConstants.smallFontSize,
+        ),
         filled: true,
-        fillColor: Colors.grey.shade800,
+        fillColor: AppConstants.cardColor,
         border: const OutlineInputBorder(),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey.shade600),
+          borderSide: BorderSide(color: AppConstants.borderColor),
         ),
         focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.purpleAccent),
+          borderSide: BorderSide(color: AppConstants.primaryColor),
         ),
       ),
       validator: (value) {
@@ -723,19 +782,25 @@ class _EditTradeDialogState extends State<EditTradeDialog>
   Widget _buildTypeDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedType,
-      style: const TextStyle(color: Colors.white, fontSize: 14),
-      dropdownColor: Colors.grey.shade800,
+      style: const TextStyle(
+        color: AppConstants.textPrimaryColor,
+        fontSize: AppConstants.mediumFontSize,
+      ),
+      dropdownColor: AppConstants.cardColor,
       decoration: InputDecoration(
         labelText: 'Type',
-        labelStyle: const TextStyle(color: Colors.white70, fontSize: 12),
+        labelStyle: const TextStyle(
+          color: AppConstants.textSecondaryColor,
+          fontSize: AppConstants.smallFontSize,
+        ),
         filled: true,
-        fillColor: Colors.grey.shade800,
+        fillColor: AppConstants.cardColor,
         border: const OutlineInputBorder(),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey.shade600),
+          borderSide: BorderSide(color: AppConstants.borderColor),
         ),
         focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.purpleAccent),
+          borderSide: BorderSide(color: AppConstants.primaryColor),
         ),
       ),
       items: ['Long', 'Short'].map((String type) {
