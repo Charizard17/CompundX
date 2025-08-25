@@ -1,0 +1,12 @@
+{
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "compundx",
+          "configurations": {"web": "1:796238096687:web:5c895d5ab01ba3c09859da"}
+        }
+      }
+    }
+  }
+}

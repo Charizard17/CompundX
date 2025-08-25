@@ -1,11 +1,16 @@
 import 'package:compundx/constants/app_constants.dart';
+import 'package:compundx/firebase_options.dart';
 import 'package:compundx/widgets/add_trade_form.dart';
 import 'package:compundx/widgets/growth_chart.dart';
 import 'package:compundx/widgets/trades_table.dart';
 import 'package:compundx/services/trade_service.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(const CompundX());
 }
 
@@ -55,7 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        width: 1239,
+        width: 1240,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: SingleChildScrollView(
           child: Column(
