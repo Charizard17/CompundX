@@ -99,7 +99,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
             colorScheme: const ColorScheme.dark(
               primary: AppConstants.primaryColor,
               onPrimary: AppConstants.textPrimaryColor,
-              surface: AppConstants.disabledColor,
+              surface: AppConstants.textSecondaryColor,
               onSurface: AppConstants.textPrimaryColor,
             ),
           ),
@@ -125,7 +125,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
             colorScheme: const ColorScheme.dark(
               primary: AppConstants.primaryColor,
               onPrimary: AppConstants.textPrimaryColor,
-              surface: AppConstants.disabledColor,
+              surface: AppConstants.textSecondaryColor,
               onSurface: AppConstants.textPrimaryColor,
             ),
           ),
@@ -252,6 +252,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                         icon: const Icon(
                           Icons.delete,
                           color: AppConstants.errorColor,
+                          size: AppConstants.titleFontSize,
                         ),
                         tooltip: 'Delete Trade',
                       ),
@@ -260,6 +261,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                         icon: const Icon(
                           Icons.close,
                           color: AppConstants.textPrimaryColor,
+                          size: AppConstants.titleFontSize,
                         ),
                       ),
                     ],
@@ -272,8 +274,9 @@ class _EditTradeDialogState extends State<EditTradeDialog>
               TabBar(
                 controller: _tabController,
                 labelColor: AppConstants.primaryColor,
-                unselectedLabelColor: AppConstants.textSecondaryColor,
+                unselectedLabelColor: AppConstants.textPrimaryColor,
                 indicatorColor: AppConstants.primaryColor,
+                labelStyle: TextStyle(fontSize: AppConstants.mediumFontSize),
                 tabs: const [
                   Tab(text: 'Trade Details'),
                   Tab(text: 'Screenshots & Notes'),
@@ -300,7 +303,14 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                 children: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontSize: AppConstants.mediumFontSize,
+                        fontWeight: FontWeight.bold,
+                        color: AppConstants.primaryColor,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   ElevatedButton(
@@ -309,7 +319,13 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                       backgroundColor: AppConstants.primaryColor,
                       foregroundColor: AppConstants.textPrimaryColor,
                     ),
-                    child: const Text('Save Changes'),
+                    child: const Text(
+                      'Save Changes',
+                      style: TextStyle(
+                        fontSize: AppConstants.mediumFontSize,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),

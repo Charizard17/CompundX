@@ -53,7 +53,7 @@ class _AddTradeFormState extends State<AddTradeForm> {
             colorScheme: const ColorScheme.dark(
               primary: AppConstants.primaryColor,
               onPrimary: AppConstants.textPrimaryColor,
-              surface: AppConstants.disabledColor,
+              surface: AppConstants.textSecondaryColor,
               onSurface: AppConstants.textPrimaryColor,
             ),
           ),
@@ -79,7 +79,7 @@ class _AddTradeFormState extends State<AddTradeForm> {
             colorScheme: const ColorScheme.dark(
               primary: AppConstants.primaryColor,
               onPrimary: AppConstants.textPrimaryColor,
-              surface: AppConstants.disabledColor,
+              surface: AppConstants.textSecondaryColor,
               onSurface: AppConstants.textPrimaryColor,
             ),
           ),
