@@ -10,7 +10,7 @@ class TradesTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppConstants.surfaceColor,
         borderRadius: BorderRadius.circular(8),
@@ -26,7 +26,7 @@ class TradesTable extends StatelessWidget {
                 'Trades',
                 style: TextStyle(
                   color: AppConstants.textPrimaryColor,
-                  fontSize: AppConstants.headerFontSize,
+                  fontSize: AppConstants.largeFontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -79,6 +79,7 @@ class TradesTable extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Container(
+            width: 1177,
             decoration: BoxDecoration(
               border: Border.all(color: AppConstants.borderColor),
               borderRadius: BorderRadius.circular(4),
@@ -295,7 +296,7 @@ class TradesTable extends StatelessWidget {
         text,
         style: TextStyle(
           color: color ?? AppConstants.textSecondaryColor,
-          fontSize: AppConstants.mediumFontSize,
+          fontSize: AppConstants.smallFontSize,
           fontWeight: color != null ? FontWeight.bold : FontWeight.normal,
         ),
         textAlign: TextAlign.center,
@@ -392,7 +393,7 @@ class TradesTable extends StatelessWidget {
                 title,
                 style: const TextStyle(
                   color: AppConstants.textPrimaryColor,
-                  fontSize: AppConstants.headerFontSize,
+                  fontSize: AppConstants.largeFontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),

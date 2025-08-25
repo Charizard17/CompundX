@@ -361,24 +361,10 @@ class _GrowthChartState extends State<GrowthChart> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Title
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: const Text(
-            'ROAD TO \$1 MILLION',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppConstants.textPrimaryColor,
-              fontSize: AppConstants.titleFontSize,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 2,
-            ),
-          ),
-        ),
-
         // Controls Row
         Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+
           decoration: BoxDecoration(
             color: AppConstants.surfaceColor,
             borderRadius: BorderRadius.circular(8),
@@ -386,8 +372,6 @@ class _GrowthChartState extends State<GrowthChart> {
           ),
           child: Row(
             children: [
-              const SizedBox(width: 10),
-
               // LINEAR/LOG Scale Toggle Buttons
               Container(
                 decoration: BoxDecoration(
@@ -425,7 +409,7 @@ class _GrowthChartState extends State<GrowthChart> {
                             color: !_isLogScale
                                 ? AppConstants.textPrimaryColor
                                 : AppConstants.textSecondaryColor,
-                            fontSize: AppConstants.smallFontSize,
+                            fontSize: AppConstants.mediumFontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -458,7 +442,7 @@ class _GrowthChartState extends State<GrowthChart> {
                             color: _isLogScale
                                 ? AppConstants.textPrimaryColor
                                 : AppConstants.textSecondaryColor,
-                            fontSize: AppConstants.smallFontSize,
+                            fontSize: AppConstants.mediumFontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -467,8 +451,28 @@ class _GrowthChartState extends State<GrowthChart> {
                   ],
                 ),
               ),
+              SizedBox(width: 50),
 
-              const Spacer(),
+              // Zoom Controls
+              Expanded(
+                child: Slider(
+                  value: _zoomLevel,
+                  min: 1.0,
+                  max: 6.0,
+                  divisions: 20,
+                  activeColor: AppConstants.primaryColor,
+                  inactiveColor: AppConstants.borderColor,
+                  onChanged: (value) {
+                    setState(() {
+                      _zoomLevel = value;
+                      _updateChartBounds();
+                    });
+                  },
+                ),
+              ),
+
+              SizedBox(width: 50),
+
               // Line toggles (Actual and Target)
               Row(
                 children: [
@@ -513,7 +517,7 @@ class _GrowthChartState extends State<GrowthChart> {
                               color: _showActualData
                                   ? AppConstants.successColor
                                   : AppConstants.textPrimaryColor,
-                              fontSize: AppConstants.smallFontSize,
+                              fontSize: AppConstants.mediumFontSize,
                             ),
                           ),
                         ],
@@ -562,7 +566,7 @@ class _GrowthChartState extends State<GrowthChart> {
                               color: _showTargetCurve
                                   ? AppConstants.primaryColor
                                   : AppConstants.textPrimaryColor,
-                              fontSize: AppConstants.smallFontSize,
+                              fontSize: AppConstants.mediumFontSize,
                             ),
                           ),
                         ],
@@ -570,24 +574,6 @@ class _GrowthChartState extends State<GrowthChart> {
                     ),
                   ),
                 ],
-              ),
-
-              // Zoom Controls
-              Expanded(
-                child: Slider(
-                  value: _zoomLevel,
-                  min: 1.0,
-                  max: 6.0,
-                  divisions: 20,
-                  activeColor: AppConstants.primaryColor,
-                  inactiveColor: AppConstants.borderColor,
-                  onChanged: (value) {
-                    setState(() {
-                      _zoomLevel = value;
-                      _updateChartBounds();
-                    });
-                  },
-                ),
               ),
             ],
           ),
@@ -669,7 +655,7 @@ class _GrowthChartState extends State<GrowthChart> {
                                 'Week ${value.toInt()}',
                                 style: const TextStyle(
                                   color: AppConstants.textSecondaryColor,
-                                  fontSize: AppConstants.smallFontSize,
+                                  fontSize: AppConstants.mediumFontSize,
                                 ),
                               );
                             }
@@ -691,7 +677,7 @@ class _GrowthChartState extends State<GrowthChart> {
                               _formatYAxisLabel(value),
                               style: const TextStyle(
                                 color: AppConstants.textSecondaryColor,
-                                fontSize: AppConstants.smallFontSize,
+                                fontSize: AppConstants.mediumFontSize,
                               ),
                             );
                           },
@@ -722,7 +708,7 @@ class _GrowthChartState extends State<GrowthChart> {
                                     ? AppConstants.primaryColor
                                     : AppConstants.successColor,
                                 fontWeight: FontWeight.bold,
-                                fontSize: AppConstants.smallFontSize,
+                                fontSize: AppConstants.mediumFontSize,
                               ),
                             );
                           }).toList();
@@ -825,7 +811,7 @@ class _GrowthChartState extends State<GrowthChart> {
           title,
           style: TextStyle(
             color: AppConstants.textSecondaryColor,
-            fontSize: AppConstants.smallFontSize,
+            fontSize: AppConstants.mediumFontSize,
           ),
         ),
         const SizedBox(height: 4),

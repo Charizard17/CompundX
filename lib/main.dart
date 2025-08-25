@@ -54,22 +54,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
+      body: Container(
+        width: 1239,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: SingleChildScrollView(
           child: Column(
             children: [
+              SizedBox(height: 20),
+
+              // Title
+              const Text(
+                'ROAD TO \$1 MILLION',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppConstants.textPrimaryColor,
+                  fontSize: AppConstants.titleFontSize,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
+              ),
+              SizedBox(height: 20),
+
               // Growth Chart - reduced height for better layout
               SizedBox(height: 800, child: const GrowthChart()),
-              Container(height: 20),
+              SizedBox(height: 20),
 
               // Add Trade Form - now optimized and compact
               AddTradeForm(),
-              Container(height: 20),
+              SizedBox(height: 20),
 
               // Trades Table
               TradesTable(),
-              Container(height: 100),
+              SizedBox(height: 50),
             ],
           ),
         ),

@@ -241,7 +241,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                     'Edit Trade #${widget.trade.id}',
                     style: const TextStyle(
                       color: AppConstants.textPrimaryColor,
-                      fontSize: AppConstants.headerFontSize,
+                      fontSize: AppConstants.largeFontSize,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -416,7 +416,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                     'Leave PNL empty for open trades. When you close the trade, come back and add the PNL value.',
                     style: TextStyle(
                       color: AppConstants.textSecondaryColor,
-                      fontSize: AppConstants.smallFontSize,
+                      fontSize: AppConstants.mediumFontSize,
                     ),
                   ),
                 ),
@@ -480,7 +480,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
               hintStyle: TextStyle(color: AppConstants.textHintColor),
               labelStyle: const TextStyle(
                 color: AppConstants.textSecondaryColor,
-                fontSize: AppConstants.smallFontSize,
+                fontSize: AppConstants.mediumFontSize,
               ),
               filled: true,
               fillColor: AppConstants.cardColor,
@@ -517,7 +517,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                           'Before',
                           style: TextStyle(
                             color: AppConstants.textSecondaryColor,
-                            fontSize: AppConstants.smallFontSize,
+                            fontSize: AppConstants.mediumFontSize,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -561,7 +561,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
                           'After',
                           style: TextStyle(
                             color: AppConstants.textSecondaryColor,
-                            fontSize: AppConstants.smallFontSize,
+                            fontSize: AppConstants.mediumFontSize,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -615,7 +615,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
         labelText: 'Date',
         labelStyle: const TextStyle(
           color: AppConstants.textSecondaryColor,
-          fontSize: AppConstants.smallFontSize,
+          fontSize: AppConstants.mediumFontSize,
         ),
         filled: true,
         fillColor: AppConstants.cardColor,
@@ -654,7 +654,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
         labelText: 'Time',
         labelStyle: const TextStyle(
           color: AppConstants.textSecondaryColor,
-          fontSize: AppConstants.smallFontSize,
+          fontSize: AppConstants.mediumFontSize,
         ),
         filled: true,
         fillColor: AppConstants.cardColor,
@@ -698,7 +698,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
         hintStyle: TextStyle(color: AppConstants.textHintColor),
         labelStyle: const TextStyle(
           color: AppConstants.textSecondaryColor,
-          fontSize: AppConstants.smallFontSize,
+          fontSize: AppConstants.mediumFontSize,
         ),
         filled: true,
         fillColor: AppConstants.cardColor,
@@ -747,7 +747,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
         labelText: label,
         labelStyle: const TextStyle(
           color: AppConstants.textSecondaryColor,
-          fontSize: AppConstants.smallFontSize,
+          fontSize: AppConstants.mediumFontSize,
         ),
         filled: true,
         fillColor: AppConstants.cardColor,
@@ -791,7 +791,7 @@ class _EditTradeDialogState extends State<EditTradeDialog>
         labelText: 'Type',
         labelStyle: const TextStyle(
           color: AppConstants.textSecondaryColor,
-          fontSize: AppConstants.smallFontSize,
+          fontSize: AppConstants.mediumFontSize,
         ),
         filled: true,
         fillColor: AppConstants.cardColor,

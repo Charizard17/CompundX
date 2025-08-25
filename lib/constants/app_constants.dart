@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 class AppConstants {
   // Font Sizes
   static const double titleFontSize = 30.0;
-  static const double headerFontSize = 20.0;
-  static const double largeFontSize = 16.0;
-  static const double mediumFontSize = 14.0;
-  static const double smallFontSize = 12.0;
+  static const double largeFontSize = 20.0;
+  static const double mediumFontSize = 16.0;
+  static const double smallFontSize = 13.0;
 
   // Colors
   static const Color primaryColor = Colors.purpleAccent;

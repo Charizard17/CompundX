@@ -138,7 +138,7 @@ class _AddTradeFormState extends State<AddTradeForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppConstants.surfaceColor,
         borderRadius: BorderRadius.circular(8),
@@ -153,7 +153,7 @@ class _AddTradeFormState extends State<AddTradeForm> {
               'Add Trade',
               style: TextStyle(
                 color: AppConstants.textPrimaryColor,
-                fontSize: AppConstants.headerFontSize,
+                fontSize: AppConstants.largeFontSize,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -256,13 +256,13 @@ class _AddTradeFormState extends State<AddTradeForm> {
       onTap: _selectDate,
       style: const TextStyle(
         color: AppConstants.textPrimaryColor,
-        fontSize: AppConstants.smallFontSize,
+        fontSize: AppConstants.mediumFontSize,
       ),
       decoration: InputDecoration(
         labelText: 'Date',
         labelStyle: const TextStyle(
           color: AppConstants.textSecondaryColor,
-          fontSize: AppConstants.smallFontSize,
+          fontSize: AppConstants.mediumFontSize,
         ),
         filled: true,
         fillColor: AppConstants.cardColor,
@@ -295,13 +295,13 @@ class _AddTradeFormState extends State<AddTradeForm> {
       onTap: _selectTime,
       style: const TextStyle(
         color: AppConstants.textPrimaryColor,
-        fontSize: AppConstants.smallFontSize,
+        fontSize: AppConstants.mediumFontSize,
       ),
       decoration: InputDecoration(
         labelText: 'Time',
         labelStyle: const TextStyle(
           color: AppConstants.textSecondaryColor,
-          fontSize: AppConstants.smallFontSize,
+          fontSize: AppConstants.mediumFontSize,
         ),
         filled: true,
         fillColor: AppConstants.cardColor,
@@ -336,13 +336,13 @@ class _AddTradeFormState extends State<AddTradeForm> {
       controller: controller,
       style: const TextStyle(
         color: AppConstants.textPrimaryColor,
-        fontSize: AppConstants.smallFontSize,
+        fontSize: AppConstants.mediumFontSize,
       ),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(
           color: AppConstants.textSecondaryColor,
-          fontSize: AppConstants.smallFontSize,
+          fontSize: AppConstants.mediumFontSize,
         ),
         filled: true,
         fillColor: AppConstants.cardColor,
@@ -385,13 +385,13 @@ class _AddTradeFormState extends State<AddTradeForm> {
       ],
       style: const TextStyle(
         color: AppConstants.textPrimaryColor,
-        fontSize: AppConstants.smallFontSize,
+        fontSize: AppConstants.mediumFontSize,
       ),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(
           color: AppConstants.textSecondaryColor,
-          fontSize: AppConstants.smallFontSize,
+          fontSize: AppConstants.mediumFontSize,
         ),
         filled: true,
         fillColor: AppConstants.cardColor,
@@ -428,14 +428,14 @@ class _AddTradeFormState extends State<AddTradeForm> {
       value: _selectedType,
       style: const TextStyle(
         color: AppConstants.textPrimaryColor,
-        fontSize: AppConstants.smallFontSize,
+        fontSize: AppConstants.mediumFontSize,
       ),
       dropdownColor: AppConstants.cardColor,
       decoration: InputDecoration(
         labelText: 'Type',
         labelStyle: const TextStyle(
           color: AppConstants.textSecondaryColor,
-          fontSize: AppConstants.smallFontSize,
+          fontSize: AppConstants.mediumFontSize,
         ),
         filled: true,
         fillColor: AppConstants.cardColor,
